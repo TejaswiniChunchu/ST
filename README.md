@@ -76,6 +76,19 @@ CREATE TABLE Electives (
     Department VARCHAR(100) NOT NULL,
     StudentYear INT NOT NULL
 );
+INSERT INTO Electives (SubjectID, Department, StudentYear) VALUES 
+('D201', 'Bachelor of Information & Communications Technology', 2),
+('T206', 'Bachelor of Information & Communications Technology', 2),
+('T201', 'Bachelor of Information & Communications Technology', 2),
+('I263', 'Bachelor of Information & Communications Technology', 2),
+('I221', 'Bachelor of Information & Communications Technology', 2),
+('I213', 'Bachelor of Information & Communications Technology', 2),
+('I212', 'Bachelor of Information & Communications Technology', 2),
+('I203', 'Bachelor of Information & Communications Technology', 2),
+('I202', 'Bachelor of Information & Communications Technology', 2),
+('D211', 'Bachelor of Information & Communications Technology', 2),
+('D202', 'Bachelor of Information & Communications Technology', 2),
+('T211', 'Bachelor of Information & Communications Technology', 2);
 
 
 
