@@ -73,11 +73,12 @@ try {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
             $_SESSION['Userid'] = $user['id'];
-            $_SESSION['userFirstname'] = $user['firstname'];
-            $_SESSION['userLastname'] = $user['lastname'];
-            $_SESSION['user'] = $username;
-            $_SESSION['MajorName1'] = $user['MajorName1'];
-            $_SESSION['MajorName2'] = $user['MajorName2'];
+        $_SESSION['userFirstname'] = $user['firstname'];
+        $_SESSION['userLastname'] = $user['lastname'];
+        $_SESSION['user'] = $username;
+        $_SESSION['MajorName1'] = $user['MajorName1'];
+        $_SESSION['MajorName2'] = $user['MajorName2'];
+        $_SESSION['StudentYear'] = $user['StudentYear'];
     
             // Initialize MajorID variables
             $_SESSION['MajorID1'] = null;
@@ -93,6 +94,7 @@ try {
                 if ($stmtMajor1->rowCount() > 0) {
                     $major1 = $stmtMajor1->fetch(PDO::FETCH_ASSOC);
                     $_SESSION['MajorID1'] = $major1['MajorID'];
+                    $_SESSION['Department'] = $major1['Department'];
                 }
             }
     
@@ -106,6 +108,7 @@ try {
                 if ($stmtMajor2->rowCount() > 0) {
                     $major2 = $stmtMajor2->fetch(PDO::FETCH_ASSOC);
                     $_SESSION['MajorID2'] = $major2['MajorID'];
+                    $_SESSION['Department'] = $major1['Department'];
                 }
             }
 
