@@ -3,6 +3,9 @@ CREATE TABLE Majors (
     MajorName VARCHAR(255) NOT NULL,
     Department VARCHAR(255) NOT NULL
 );
+
+
+
 INSERT INTO Majors (MajorID, MajorName, Department) VALUES
 (1, 'Software Engineering', 'Bachelor of Information & Communications Technology'),
 (2, 'Data Management & Analytics', 'Bachelor of Information & Communications Technology'),
@@ -24,6 +27,9 @@ CREATE TABLE Subjects (
     CreditHours INT NOT NULL,
     Description TEXT 
 );
+
+
+
 INSERT INTO Subjects (SubjectID, SubjectName, Prerequisite, StudyYear, Sem, CourseType, EnrollmentStatus, CreditHours, Description) VALUES
 ('D201', 'Advanced Programming', NULL, 2, '1', 'Major', 'Available', 105, 'Advanced concepts in programming.'),
 ('D202', 'Software Process', NULL, 2, '2', 'Major', 'Available', 105, 'Understanding software development processes.'),
@@ -39,12 +45,16 @@ INSERT INTO Subjects (SubjectID, SubjectName, Prerequisite, StudyYear, Sem, Cour
 ('I263', 'Introduction to Finance', NULL, 2, '1', 'Major', 'Available', 105, 'Basics of finance in projects.'),
 ('I202', 'IT Project Management', NULL, 2, '2', 'Major', 'Available', 105, 'Principles of managing IT projects.');
 
+
+
 CREATE TABLE SubjectMajors (
     SubjectID VARCHAR(50),                       -- Foreign key linking to Subjects
     MajorID INT,                                 -- Foreign key linking to Majors
     PRIMARY KEY (SubjectID, MajorID),           -- Composite primary key
     FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID) ON DELETE CASCADE,
     FOREIGN KEY (MajorID) REFERENCES Majors(MajorID) ON DELETE CASCADE);
+
+
 
 -- Linking Subjects to Majors
 INSERT INTO SubjectMajors (SubjectID, MajorID) VALUES
@@ -71,11 +81,14 @@ INSERT INTO SubjectMajors (SubjectID, MajorID) VALUES
 ('I263', 7),
 ('I202', 7);
 
+
 CREATE TABLE Electives (
     subjectID VARCHAR(50) PRIMARY KEY,
     Department VARCHAR(100) NOT NULL,
     StudentYear INT NOT NULL
 );
+
+
 INSERT INTO Electives (SubjectID, Department, StudentYear) VALUES 
 ('D201', 'Bachelor of Information & Communications Technology', 2),
 ('T206', 'Bachelor of Information & Communications Technology', 2),
