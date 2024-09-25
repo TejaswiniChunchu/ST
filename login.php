@@ -7,15 +7,59 @@ if ($_POST) {
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
 
-    $query = 'SELECT * FROM users WHERE username = :username AND password = :password';
+    // Modify the query to select MajorName1 and MajorName2
+    $query = 'SELECT id, firstname, lastname, MajorName1, MajorName2, StudentYear FROM users WHERE username = :username AND password = :password';
     $stmt = $conn->prepare($query);
     $stmt->bindParam(':username', $username);
-    $stmt->bindParam(':password', $password);
+    // Use password_hash to compare passwords securely (you should hash the password before this step)
+    $stmt->bindParam(':password', $password); // This should be hashed for security
     $stmt->execute();
 
     if ($stmt->rowCount() > 0) {
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Store user data in session
+        $_SESSION['Userid'] = $user['id'];
+        $_SESSION['userFirstname'] = $user['firstname'];
+        $_SESSION['userLastname'] = $user['lastname'];
         $_SESSION['user'] = $username;
-        header('Location: welcome.php');
+        $_SESSION['MajorName1'] = $user['MajorName1'];
+        $_SESSION['MajorName2'] = $user['MajorName2'];
+        $_SESSION['StudentYear'] = $user['StudentYear'];
+
+        // Initialize MajorID variables
+        $_SESSION['MajorID1'] = null;
+        $_SESSION['MajorID2'] = null;
+
+        // Get MajorID for MajorName1 if it's not null
+        if (!empty($user['MajorName1'])) {
+            $queryMajor1 = 'SELECT MajorID,Department FROM Majors WHERE MajorName = :majorName1';
+            $stmtMajor1 = $conn->prepare($queryMajor1);
+            $stmtMajor1->bindParam(':majorName1', $user['MajorName1']);
+            $stmtMajor1->execute();
+
+            if ($stmtMajor1->rowCount() > 0) {
+                $major1 = $stmtMajor1->fetch(PDO::FETCH_ASSOC);
+                $_SESSION['MajorID1'] = $major1['MajorID'];
+                $_SESSION['Department'] = $major1['Department'];
+            }
+        }
+
+        // Get MajorID for MajorName2 if it's not null
+        if (!empty($user['MajorName2'])) {
+            $queryMajor2 = 'SELECT MajorID, Department FROM Majors WHERE MajorName = :majorName2';
+            $stmtMajor2 = $conn->prepare($queryMajor2);
+            $stmtMajor2->bindParam(':majorName2', $user['MajorName2']);
+            $stmtMajor2->execute();
+
+            if ($stmtMajor2->rowCount() > 0) {
+                $major2 = $stmtMajor2->fetch(PDO::FETCH_ASSOC);
+                $_SESSION['MajorID2'] = $major2['MajorID'];
+                $_SESSION['Department'] = $major1['Department'];
+            }
+        }
+    
+        header('Location: dashboard.php');
         exit;
     } else {
         $error_message = 'Username or Password is incorrect.';
