@@ -18,7 +18,7 @@ $userId = (int)$_SESSION['Userid']; // Cast to integer to ensure it's numeric
 try {
     // Prepare and execute a SQL query to fetch user data for the logged-in user
     $query = "
-        SELECT id, username, password, firstname, lastname, email, contactnumber, address, MajorName1, MajorName2 
+        SELECT id, username, password, firstname, lastname, email, contactnumber, address, MajorName1, MajorName2 , StudentYear
         FROM users 
         WHERE id = :userid
     ";
@@ -86,7 +86,7 @@ try {
     
             // Get MajorID for MajorName1 if it's not null
             if (!empty($user['MajorName1'])) {
-                $queryMajor1 = 'SELECT MajorID FROM Majors WHERE MajorName = :majorName1';
+                $queryMajor1 = 'SELECT MajorID, Department FROM Majors WHERE MajorName = :majorName1';
                 $stmtMajor1 = $conn->prepare($queryMajor1);
                 $stmtMajor1->bindParam(':majorName1', $user['MajorName1']);
                 $stmtMajor1->execute();
@@ -100,7 +100,7 @@ try {
     
             // Get MajorID for MajorName2 if it's not null
             if (!empty($user['MajorName2'])) {
-                $queryMajor2 = 'SELECT MajorID FROM Majors WHERE MajorName = :majorName2';
+                $queryMajor2 = 'SELECT MajorID, Department FROM Majors WHERE MajorName = :majorName2';
                 $stmtMajor2 = $conn->prepare($queryMajor2);
                 $stmtMajor2->bindParam(':majorName2', $user['MajorName2']);
                 $stmtMajor2->execute();
