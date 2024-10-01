@@ -46,6 +46,23 @@ INSERT INTO Subjects (SubjectID, SubjectName, Prerequisite, StudyYear, Sem, Cour
 ('I202', 'IT Project Management', NULL, 2, '2', 'Major', 'Available', 105, 'Principles of managing IT projects.');
 
 
+INSERT INTO Subjects (SubjectID, SubjectName, Prerequisite, StudyYear, Sem, CourseType, EnrollmentStatus, CreditHours, Description)
+VALUES 
+('D301', 'Software Engineering', NULL , 3, '1', 'Major', 'Available', 105, 'Software Engineering Sem'),
+('D303', 'Mobile Application Development', NULL , 3, '2', 'Major', 'Available', 105, 'Mobile App Development'),
+('I302', 'Industry Project', NULL , 3, '2','Major', 'Available', 105, 'Industry Project'),
+('D311', 'Advanced Database Concepts', NULL , 3, '1', 'Major', 'Available', 105, 'Advanced Database Concepts'),
+('I304', 'Data Analytics and Intelligence', NULL , 3, '2', 'Major', 'Available', 105, 'Data Analytics and Intelligence'),
+('I311', 'Advanced Web Solutions', NULL , 3, '1 or 2', 'Major', 'Available', 105, 'Advanced Web Solutions'),
+('I303', 'Management of Information and Communication Technology', NULL , 3, '2', 'Major', 'Available', 105, 'Management of ICT'),
+('I321', 'Advanced Systems Analysis', NULL , 3, '1', 'Major', 'Available', 105, 'Advanced Systems Analysis'),
+('I367', 'Advanced Project Management', NULL , 3, '1 or 2', 'Major', 'Available', 105, 'Advanced Project Management'),
+('T311', 'Systems Administration', NULL , 3, '2', 'Major', 'Available', 105, 'Systems Administration'),
+('T301', 'Network Design', NULL , 3, '1', 'Major', 'Available', 105, 'Network Design'),
+('T302', 'Cisco Scaling and Connecting Networks', NULL , 3, '2', 'Major', 'Available', 105, 'Cisco Scaling and Connecting Networks'),
+('T312', 'Network Security', NULL , 3, '1', 'Major', 'Available', 105, 'Network Security');
+
+
 
 CREATE TABLE SubjectMajors (
     SubjectID VARCHAR(50),                       -- Foreign key linking to Subjects
@@ -81,6 +98,7 @@ INSERT INTO SubjectMajors (SubjectID, MajorID) VALUES
 ('I263', 7),
 ('I202', 7);
 
+INSERT INTO SubjectMajors (SubjectID, MajorID) VALUES ('D301', 1), ('D303', 1), ('I302', 1), ('D311', 2), ('I304', 2), ('I302', 2), ('D303', 3), ('I311', 3), ('I302', 3), ('I303', 4), ('I321', 4), ('I302', 4), ('D311', 5), ('T311', 5), ('I302', 5), ('T301', 6), ('T302', 6), ('I302', 6), ('T311', 7), ('T312', 7), ('I302', 7), ('I303', 8), ('I367', 8), ('I302', 8);
 
 CREATE TABLE Electives (
     subjectID VARCHAR(50) PRIMARY KEY,
@@ -103,7 +121,19 @@ INSERT INTO Electives (SubjectID, Department, StudentYear) VALUES
 ('D202', 'Bachelor of Information & Communications Technology', 2),
 ('T211', 'Bachelor of Information & Communications Technology', 2);
 
-
+INSERT INTO Electives (SubjectID, Department, StudentYear) VALUES 
+('D301', 'Bachelor of Information & Communications Technology', 3),
+('D303', 'Bachelor of Information & Communications Technology', 3),
+('D311', 'Bachelor of Information & Communications Technology', 3),
+('I303', 'Bachelor of Information & Communications Technology', 3),
+('I304', 'Bachelor of Information & Communications Technology', 3),
+('I311', 'Bachelor of Information & Communications Technology', 3),
+('I321', 'Bachelor of Information & Communications Technology', 3),
+('I367', 'Bachelor of Information & Communications Technology', 3),
+('T301', 'Bachelor of Information & Communications Technology', 3),
+('T302', 'Bachelor of Information & Communications Technology', 3),
+('T311', 'Bachelor of Information & Communications Technology', 3),
+('T312', 'Bachelor of Information & Communications Technology', 3);
 
 
 CREATE TABLE users (

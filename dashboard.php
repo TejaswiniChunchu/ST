@@ -127,8 +127,7 @@ if (empty($majorID1) && empty($majorID2)) {
         }
  
 
-// Reassign the filtered array back to $waitingCourses
-$waitingCourses = $newWaitingCourses;
+// Reassign the filtered array back to $waitingCourse
         // Remove duplicates by SubjectID
         $uniqueSubjects = [];
         foreach ($subjects as $subject) {
