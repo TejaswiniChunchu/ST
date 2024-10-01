@@ -15,7 +15,7 @@ if (!isset($_SESSION['Userid']) || !is_numeric($_SESSION['Userid'])) {
 }
 
 $userId = (int)$_SESSION['Userid']; // Cast to integer to ensure it's numeric
-
+$waitingCourses = [];
 try {
     // Prepare and execute a SQL query to fetch subjects for enrollments that are waiting
     $query = "
@@ -36,7 +36,7 @@ try {
     INNER JOIN 
         Subjects s ON e.SubjectID = s.SubjectID 
     WHERE 
-        e.Status = 'Enrolled' AND e.userid = :userid
+        e.userid = :userid
     ";
     
     $stmt = $conn->prepare($query);
@@ -60,7 +60,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enroll History</title>
+    <title>Enroll History & Course List</title>
     <link rel="stylesheet" href="css/sidebar.css"> <!-- Adjust path if necessary -->
     <style>
         /* Additional styling for the table */
@@ -86,12 +86,14 @@ try {
             background-color: #7869B5;
             color: white;
         }
-        h1{
+
+        h1 {
             color: #e96852;
         }
-         h2 {
+        h2 {
             color: #7869B5;
         }
+
         tr:nth-child(even) {
             background-color: #f2f2f2;
         }
@@ -99,26 +101,6 @@ try {
         tr:hover {
             background-color: #e96852;
             cursor: pointer; /* Change cursor to pointer on hover */
-        }
-
-        /* Print button styling and positioning */
-        .print-button-container {
-            position: absolute;
-            top: 20px; /* Adjust as needed */
-            right: 20px; /* Adjust as needed */
-            z-index: 1000; /* Ensure the button is above other content */
-        }
-
-        .print-button {
-            padding: 10px 20px;
-            background-color: #7869B5;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .print-button:hover {
-            background-color: #e96852; /* Hover background color */
         }
     </style>
 </head>
@@ -133,58 +115,76 @@ try {
             <li><a href="logout.php">Logout</a></li>
         </ul>
     </div>
+
+    <!-- Enroll History Section -->
     <div class="table-container">
-        <!-- Print button positioned at the top-right corner -->
+        <h1>Welcome, <?php echo htmlspecialchars($_SESSION['userFirstname'], ENT_QUOTES, 'UTF-8') . ' ' . htmlspecialchars($_SESSION['userLastname'], ENT_QUOTES, 'UTF-8'); ?>!</h1>
         
-    
-        <h2>Enrolled Courses</h2>
+        <!-- Enroll History Table -->
+        <h2>Enroll History</h2>
         <table id="printTable">
-            <thead>
-                <tr>
-                    <th>Subject ID</th>
-                    <th>Subject Name</th>
-                    <th>Prerequisite</th>
-                    <th>Year</th>
-                    <th>Semester</th>
-                    <th>Course Type</th>
-                    <th>Enrollment Status</th>
-                    <th>Credit Hours</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                // Loop through each waiting course and display it in the table
-                if (empty($waitingCourses)) {
-                    echo "<tr><td colspan='8'>No Enrolled courses found.</td></tr>";
-                } else {
-                    foreach ($waitingCourses as $course) {
-                        echo "<tr>";
+        <thead>
+            <tr>
+                <th>Subject ID</th>
+                <th>Subject Name</th>
+                <th>Prerequisite</th>
+                <th>Year</th>
+                <th>Semester</th>
+                <th>Course Type</th>
+                <th>Enrollment Status</th>
+                <th>Credit Hours</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            if (empty($waitingCourses)) {
+                echo "<tr><td colspan='8'>No courses found in Enroll History.</td></tr>";
+            } else {
+                foreach ($waitingCourses as $course) {
+                    if($course['Status'] === 'Enrolled'){
+                        echo "<tr onclick=\"navigateToCourse(
+                            '" . addslashes($course['SubjectID']) . "', 
+                            '" . addslashes($course['SubjectName']) . "', 
+                            '" . addslashes($course['Prerequisite']) . "', 
+                            '" . addslashes($course['StudyYear']) . "', 
+                            '" . addslashes($course['Sem']) . "', 
+                            '" . addslashes($course['CourseType']) . "', 
+                            '" . addslashes($course['Status']) . "', 
+                            '" . addslashes($course['CreditHours']) . "',
+                            '" . addslashes($course['Description']) . "'
+                            )\">";
                         echo "<td>" . htmlspecialchars($course['SubjectID'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "<td>" . htmlspecialchars($course['SubjectName'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "<td>" . htmlspecialchars($course['Prerequisite'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "<td>" . htmlspecialchars($course['StudyYear'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "<td>" . htmlspecialchars($course['Sem'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "<td>" . htmlspecialchars($course['CourseType'], ENT_QUOTES, 'UTF-8') . "</td>";
-                        echo "<td>" . htmlspecialchars('Enrolled', ENT_QUOTES, 'UTF-8') . "</td>";
+                        echo "<td>" . htmlspecialchars($course['Status'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "<td>" . htmlspecialchars($course['CreditHours'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "</tr>";
+
                     }
+                   
                 }
-                ?>
-            </tbody>
-        </table>
-    </div>
-    <script>
-        function navigateToCourse(courseid) {
-            if (!courseid) {
-                console.error('Invalid course ID');
-                return;
             }
-            console.log("Course ID received in function:", courseid);
-            const url = `course-details.php?id=${encodeURIComponent(courseid)}`;
-            console.log('Navigating to:', url);
-            window.location.href = url;
-        }
+            ?>
+        </tbody>
+    </table>
+    </div>
+
+    <script>
+       function navigateToCourse(subjectId, subjectName, prerequisite, studyYear, semester, courseType, enrollmentStatus, creditHours, description) {
+    const url = `course-details.php?id=${encodeURIComponent(subjectId)}
+    &name=${encodeURIComponent(subjectName)}
+    &prerequisite=${encodeURIComponent(prerequisite)}
+    &year=${encodeURIComponent(studyYear)}
+    &semester=${encodeURIComponent(semester)}
+    &courseType=${encodeURIComponent(courseType)}
+    &status=${encodeURIComponent(enrollmentStatus)}
+    &creditHours=${encodeURIComponent(creditHours)}
+    &description=${encodeURIComponent(description)}`;
+    window.location.href = url;
+}
     </script>
 </body>
 </html>

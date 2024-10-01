@@ -16,6 +16,8 @@ if (!isset($_SESSION['Userid']) || !is_numeric($_SESSION['Userid'])) {
 
 $userId = (int)$_SESSION['Userid']; // Cast to integer to ensure it's numeric
 
+$waitingCourses = []; // Initialize an empty array for waiting courses
+
 try {
     // Prepare and execute a SQL query to fetch subjects for enrollments that are waiting
     $query = "
@@ -36,7 +38,7 @@ try {
     INNER JOIN 
         Subjects s ON e.SubjectID = s.SubjectID 
     WHERE 
-        e.Status = 'Waiting' AND e.userid = :userid
+        e.userid = :userid
     ";
     
     $stmt = $conn->prepare($query);
@@ -53,6 +55,109 @@ try {
     echo 'An error occurred while fetching waiting subjects. Please try again later.';
     exit(); // Stop further execution
 }
+
+// Now we will include the earlier query to fetch the Major and Elective subjects
+
+$majorID1 = $_SESSION['MajorID1'] ?? null; 
+$majorID2 = $_SESSION['MajorID2'] ?? null; 
+$studentYear = $_SESSION['StudentYear'] ?? null;
+$Department = $_SESSION['Department'] ?? null;
+
+if (empty($majorID1) && empty($majorID2)) {
+    $message = "Choose major"; // Set the message
+} else {
+    $subjects = []; // Initialize an empty array for subjects
+
+    try {
+        // Fetch subjects based on MajorID1
+        if ($majorID1 !== null) {
+            $query1 = "
+                SELECT s.SubjectID, s.SubjectName, COALESCE(s.Prerequisite, '') AS Prerequisite, s.StudyYear, s.Sem, s.CourseType, s.EnrollmentStatus, s.CreditHours, s.Description
+                FROM Subjects s
+                JOIN SubjectMajors sm ON s.SubjectID = sm.SubjectID
+                WHERE sm.MajorID = :majorID1 
+            ";
+
+            $stmt1 = $conn->prepare($query1);
+            $stmt1->bindParam(':majorID1', $majorID1, PDO::PARAM_INT);
+            $stmt1->execute();
+            $subjects1 = $stmt1->fetchAll(PDO::FETCH_ASSOC);
+            $subjects = array_merge($subjects, $subjects1);
+        }
+
+        // Fetch subjects based on MajorID2
+        if ($majorID2 !== null) {
+            $query2 = "
+                SELECT s.SubjectID, s.SubjectName, COALESCE(s.Prerequisite, '') AS Prerequisite, s.StudyYear, s.Sem, s.CourseType, s.EnrollmentStatus, s.CreditHours, s.Description
+                FROM Subjects s
+                JOIN SubjectMajors sm ON s.SubjectID = sm.SubjectID
+                WHERE sm.MajorID = :majorID2
+            ";
+
+            $stmt2 = $conn->prepare($query2);
+            $stmt2->bindParam(':majorID2', $majorID2, PDO::PARAM_INT);
+            $stmt2->execute();
+            $subjects2 = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+            $subjects = array_merge($subjects, $subjects2);
+        }
+
+        // Fetch subjects based on Electives
+        if ($Department !== null && $studentYear !== null) {
+            $query3 = "
+                SELECT s.SubjectID, s.SubjectName, COALESCE(s.Prerequisite, '') AS Prerequisite, s.StudyYear, s.Sem, s.CourseType, s.EnrollmentStatus, s.CreditHours, s.Description
+                FROM Subjects s
+                JOIN Electives e ON s.SubjectID = e.SubjectID
+                WHERE e.Department = :department AND e.StudentYear = :studentYear
+            ";
+
+            $stmt3 = $conn->prepare($query3);
+            $stmt3->bindParam(':department', $Department, PDO::PARAM_STR);
+            $stmt3->bindParam(':studentYear', $studentYear, PDO::PARAM_INT);
+            $stmt3->execute();
+            $subjects3 = $stmt3->fetchAll(PDO::FETCH_ASSOC);
+
+            // Append Elective subjects to the main subjects array, marking them as "Elective"
+            foreach ($subjects3 as $subject) {
+                // Only add if the SubjectID is not already in the main subjects array
+                if (!in_array($subject['SubjectID'], array_column($subjects, 'SubjectID'))) {
+                    $subject['CourseType'] = 'Elective'; // Set course type as Elective
+                    $subjects[] = $subject;
+                }
+            }
+        }
+ 
+
+// Reassign the filtered array back to $waitingCourses
+$waitingCourses = $newWaitingCourses;
+        // Remove duplicates by SubjectID
+        $uniqueSubjects = [];
+        foreach ($subjects as $subject) {
+            $uniqueSubjects[$subject['SubjectID']] = $subject;
+        }
+        // Resetting the subjects array to contain only unique subjects
+        $subjects = array_values($uniqueSubjects);
+       // Create an associative array to map SubjectID to Status from waitingCourses
+     
+       
+       foreach ($waitingCourses as $course) {
+        // Check each subject for a match with the course
+        foreach ($subjects as &$subject) { // Use reference (&) to modify the original subject array
+            // Check if SubjectID matches (trim to avoid whitespace issues)
+            if (trim($subject['SubjectID']) === trim($course['SubjectID'])) {
+                $subject['EnrollmentStatus'] = $course['Status']; // Assign course status to subject's EnrollmentStatus
+            }
+        }
+    }
+    
+
+    } catch (PDOException $e) {
+        // Log error details to a file
+        error_log('Database query failed: ' . $e->getMessage(), 3, '/path/to/logs/errors.log'); // Adjust path as needed
+        // Display a user-friendly message
+        echo 'An error occurred while fetching subjects. Please try again later.';
+        exit(); // Stop further execution
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -60,20 +165,23 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enroll History</title>
+    <title>Enroll History & Course List</title>
     <link rel="stylesheet" href="css/sidebar.css"> <!-- Adjust path if necessary -->
     <style>
-        /* Additional styling for the table */
+        /* Styling to ensure vertical stacking of tables */
         .table-container {
-            margin-left: 250px; /* Adjust according to your sidebar width */
+            width: 100%;
             padding: 20px;
             box-sizing: border-box;
-            position: relative; /* To position the print button absolutely */
+            display: block;
+            clear: both; /* Ensure no float issues */
+            margin-bottom: 20px; /* Adds spacing between the tables */
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 30px; /* Space between tables */
         }
 
         th, td {
@@ -86,12 +194,14 @@ try {
             background-color: #7869B5;
             color: white;
         }
-        h1{
+
+        h1 {
             color: #e96852;
         }
-         h2 {
+        h2 {
             color: #7869B5;
         }
+
         tr:nth-child(even) {
             background-color: #f2f2f2;
         }
@@ -101,6 +211,18 @@ try {
             cursor: pointer; /* Change cursor to pointer on hover */
         }
 
+        /* Additional styles to ensure block layout */
+        .sidebar {
+            float: left;
+            width: 250px; /* Adjust based on your sidebar width */
+            padding-top: 20px;
+        }
+
+        /* Ensure main content flows after the sidebar */
+        .main-content {
+            margin-left: 250px; /* Adjust based on your sidebar width */
+            padding: 20px;
+        }
         /* Print button styling and positioning */
         .print-button-container {
             position: absolute;
@@ -133,60 +255,135 @@ try {
             <li><a href="logout.php">Logout</a></li>
         </ul>
     </div>
-    <div class="table-container">
-        <!-- Print button positioned at the top-right corner -->
-        <div class="print-button-container">
+
+    <div class="main-content">
+    <div class="print-button-container">
             <button class="print-button" onclick="printTable()">Print</button>
         </div>
+        <!-- Welcome Message -->
         <h1>Welcome, <?php echo htmlspecialchars($_SESSION['userFirstname'], ENT_QUOTES, 'UTF-8') . ' ' . htmlspecialchars($_SESSION['userLastname'], ENT_QUOTES, 'UTF-8'); ?>!</h1>
-        <h2>Enroll History</h2>
-        <table id="printTable">
-            <thead>
-                <tr>
-                    <th>Subject ID</th>
-                    <th>Subject Name</th>
-                    <th>Prerequisite</th>
-                    <th>Year</th>
-                    <th>Semester</th>
-                    <th>Course Type</th>
-                    <th>Enrollment Status</th>
-                    <th>Credit Hours</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                // Loop through each waiting course and display it in the table
-                if (empty($waitingCourses)) {
-                    echo "<tr><td colspan='8'>No  courses found in Enroll History.</td></tr>";
-                } else {
-                    foreach ($waitingCourses as $course) {
-                        echo "<tr>";
+
+        <!-- Enroll History Section -->
+        <div class="table-container">
+    <h2>Enroll History</h2>
+    <table id="printTable">
+        <thead>
+            <tr>
+                <th>Subject ID</th>
+                <th>Subject Name</th>
+                <th>Prerequisite</th>
+                <th>Year</th>
+                <th>Semester</th>
+                <th>Course Type</th>
+                <th>Enrollment Status</th>
+                <th>Credit Hours</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            if (empty($waitingCourses)) {
+                echo "<tr><td colspan='8'>No courses found in Enroll History.</td></tr>";
+            } else {
+                foreach ($waitingCourses as $course) {
+                    if($course['Status'] === 'Waiting'){
+                        echo "<tr onclick=\"navigateToCourse(
+                            '" . addslashes($course['SubjectID']) . "', 
+                            '" . addslashes($course['SubjectName']) . "', 
+                            '" . addslashes($course['Prerequisite']) . "', 
+                            '" . addslashes($course['StudyYear']) . "', 
+                            '" . addslashes($course['Sem']) . "', 
+                            '" . addslashes($course['CourseType']) . "', 
+                            '" . addslashes($course['Status']) . "', 
+                            '" . addslashes($course['CreditHours']) . "',
+                            '" . addslashes($course['Description']) . "'
+                            )\">";
                         echo "<td>" . htmlspecialchars($course['SubjectID'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "<td>" . htmlspecialchars($course['SubjectName'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "<td>" . htmlspecialchars($course['Prerequisite'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "<td>" . htmlspecialchars($course['StudyYear'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "<td>" . htmlspecialchars($course['Sem'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "<td>" . htmlspecialchars($course['CourseType'], ENT_QUOTES, 'UTF-8') . "</td>";
-                        echo "<td>" . htmlspecialchars('Waiting', ENT_QUOTES, 'UTF-8') . "</td>";
+                        echo "<td>" . htmlspecialchars($course['Status'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "<td>" . htmlspecialchars($course['CreditHours'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "</tr>";
+
                     }
+                   
                 }
-                ?>
-            </tbody>
-        </table>
-    </div>
-    <script>
-        function navigateToCourse(courseid) {
-            if (!courseid) {
-                console.error('Invalid course ID');
-                return;
             }
-            console.log("Course ID received in function:", courseid);
-            const url = `course-details.php?id=${encodeURIComponent(courseid)}`;
-            console.log('Navigating to:', url);
-            window.location.href = url;
-        }
+            ?>
+        </tbody>
+    </table>
+</div>
+
+        <!-- Course List Section -->
+        <div class="table-container">
+            <h2>Course List</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Subject ID</th>
+                        <th>Subject Name</th>
+                        <th>Prerequisite</th>
+                        <th>Year</th>
+                        <th>Semester</th>
+                        <th>Course Type</th>
+                        <th>Enrollment Status</th>
+                        <th>Credit Hours</th>
+                    </tr>
+                </thead>
+                <tbody>
+            <?php 
+           
+            if (empty($subjects)): ?>
+                <tr>
+                    <td colspan="8">No subjects found. Select the Major in edit profile.</td>
+                </tr>
+            <?php else: ?>
+                <?php foreach ($subjects as $subject): ?>
+                   
+                        <tr onclick="navigateToCourse(
+                        '<?php echo addslashes($subject['SubjectID']); ?>', 
+                        '<?php echo addslashes($subject['SubjectName']); ?>', 
+                        '<?php echo addslashes($subject['Prerequisite']); ?>', 
+                        '<?php echo addslashes($subject['StudyYear']); ?>', 
+                        '<?php echo addslashes($subject['Sem']); ?>', 
+                        '<?php echo addslashes($subject['CourseType']); ?>', 
+                        '<?php echo addslashes($subject['EnrollmentStatus']); ?>', 
+                        '<?php echo addslashes($subject['CreditHours']); ?>',
+                        '<?php echo addslashes($subject['Description']); ?>'
+                        )">
+                            <td><?php echo htmlspecialchars($subject['SubjectID'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($subject['SubjectName'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($subject['Prerequisite'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($subject['StudyYear'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($subject['Sem'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($subject['CourseType'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($subject['EnrollmentStatus'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($subject['CreditHours'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        </tr>
+                   
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+  function navigateToCourse(subjectId, subjectName, prerequisite, studyYear, semester, courseType, enrollmentStatus, creditHours, description) {
+    const url = `course-details.php?id=${encodeURIComponent(subjectId)}
+    &name=${encodeURIComponent(subjectName)}
+    &prerequisite=${encodeURIComponent(prerequisite)}
+    &year=${encodeURIComponent(studyYear)}
+    &semester=${encodeURIComponent(semester)}
+    &courseType=${encodeURIComponent(courseType)}
+    &status=${encodeURIComponent(enrollmentStatus)}
+    &creditHours=${encodeURIComponent(creditHours)}
+    &description=${encodeURIComponent(description)}`;
+    window.location.href = url;
+}
+
 
         function printTable() {
             // Open a new window
