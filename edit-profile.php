@@ -150,14 +150,7 @@ try {
             margin: 10px 0;
         }
 
-        input[type="submit"] {
-            width: 100px;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
+       
         .enroll-button {
             background-color: #7869B5;
             color: white;
