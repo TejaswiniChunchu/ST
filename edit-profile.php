@@ -240,7 +240,7 @@ try {
     </select>
 <?php endif; ?>
 
-            <input class="enroll-button type="submit" value="Update Profile">
+            <input class="enroll-button" type="submit" value="Update Profile">
         </form>
     </div>
 </body>

@@ -360,7 +360,7 @@ try {
         <!-- Enroll History Section -->
         <div class="table-container">
     <h2>Enroll History</h2>
-    <table id="printTable">
+    <table>
         <thead>
             <tr>
                 <th>Subject ID</th>
@@ -418,7 +418,7 @@ try {
         <!-- Course List Section -->
         <div class="table-container">
             <h2>Course List</h2>
-            <table>
+            <table id="printTable">
                 <thead>
                     <tr>
                         <th>Subject ID</th>
