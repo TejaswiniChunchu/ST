@@ -62,6 +62,16 @@ VALUES
 ('T302', 'Cisco Scaling and Connecting Networks', NULL , 3, '2', 'Major', 'Available', 105, 'Cisco Scaling and Connecting Networks'),
 ('T312', 'Network Security', NULL , 3, '1', 'Major', 'Available', 105, 'Network Security');
 
+INSERT INTO Subjects (SubjectID, SubjectName, Prerequisite, StudyYear, Sem, CourseType, EnrollmentStatus, CreditHours, Description) VALUES
+('D101', 'Programme Fundamentals', NULL, 1, '2', 'Major', 'Available', 105, 'Introduction to programming concepts and methodologies.'),
+('D111', 'Database Fundamentals', NULL, 1, '1', 'Major', 'Available', 105, 'Fundamentals of database design and management.'),
+('I101', 'Information Systems Fundamentals', NULL, 1, '1', 'Major', 'Available', 105, 'Overview of information systems and their role in organizations.'),
+('I102', 'Technical Support Fundamentals', NULL, 1, '2', 'Major', 'Available', 105, 'Principles of technical support and troubleshooting techniques.'),
+('I111', 'Web Fundamentals', NULL, 1, '2', 'Major', 'Available', 105, 'Basic concepts of web development and design.'),
+('I121', 'Systems Analysis Fundamentals', NULL, 1, '1', 'Major', 'Available', 105, 'Introduction to systems analysis and design methodologies.'),
+('T101', 'Network Fundamentals', NULL, 1, '2', 'Major', 'Available', 105, 'Basic principles of networking and communication technologies.'),
+('T111', 'Computer Hardware Fundamentals', NULL, 1, '1', 'Major', 'Available', 105, 'Overview of computer hardware components and their functions.');
+
 
 
 CREATE TABLE SubjectMajors (
@@ -163,9 +173,16 @@ CREATE TABLE Enrollments (
     SubjectID VARCHAR(50),
     Semester VARCHAR(20) NOT NULL,
     Status VARCHAR(20) NOT NULL,
+    results VARCHAR(255),
     FOREIGN KEY (userid) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID) ON DELETE CASCADE
 );
+
+
+UPDATE Enrollments
+SET Status = 'Enrolled'
+WHERE userid = 2 AND SubjectID = 'D201';
+
 
 
 

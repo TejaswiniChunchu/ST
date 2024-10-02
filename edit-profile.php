@@ -67,7 +67,7 @@ try {
         $update_stmt->bindParam(':userid', $userId, PDO::PARAM_INT);
 
         if ($update_stmt->execute()) {
-            echo "Profile updated successfully!";
+            
             // Refresh user data
             $stmt->execute();
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -158,13 +158,28 @@ try {
             border: none;
             cursor: pointer;
         }
+        .enroll-button {
+            background-color: #7869B5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .enroll-button:hover {
+        background-color: #e96852; /* Color when hovered */
+    }
     </style>
 </head>
 <body>
     <div class="sidebar">
         <ul>
             <li><a href="dashboard.php">Dashboard</a></li>
-            <li><a href="enrol.php">Enroll in Course</a></li>
             <li><a href="enrolled-courses.php">Enrolled Courses</a></li>
             <li><a href="edit-profile.php">Edit Profile</a></li>
             <li><a href="logout.php">Logout</a></li>
@@ -225,7 +240,7 @@ try {
     </select>
 <?php endif; ?>
 
-            <input type="submit" value="Update Profile">
+            <input class="enroll-button type="submit" value="Update Profile">
         </form>
     </div>
 </body>

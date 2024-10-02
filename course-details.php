@@ -8,7 +8,7 @@ $_SESSION['referrer'] = $_SERVER['HTTP_REFERER'];
 // Initialize variables
 $courseId = $courseName = $prerequisite = $studyYear = $semester = $courseType = $enrollmentStatus = $creditHours = null;
 
-if (isset($_GET['id'], $_GET['name'], $_GET['prerequisite'], $_GET['year'], $_GET['semester'], $_GET['courseType'], $_GET['status'], $_GET['creditHours'], $_GET['description'])) {
+if (isset($_GET['id'], $_GET['name'], $_GET['prerequisite'], $_GET['year'], $_GET['semester'], $_GET['courseType'], $_GET['status'], $_GET['creditHours'], $_GET['results'], $_GET['description'])) {
     $courseId = htmlspecialchars($_GET['id'], ENT_QUOTES, 'UTF-8');
     $courseName = htmlspecialchars($_GET['name'], ENT_QUOTES, 'UTF-8');
     $prerequisite = htmlspecialchars($_GET['prerequisite'], ENT_QUOTES, 'UTF-8');
@@ -17,6 +17,7 @@ if (isset($_GET['id'], $_GET['name'], $_GET['prerequisite'], $_GET['year'], $_GE
     $courseType = htmlspecialchars($_GET['courseType'], ENT_QUOTES, 'UTF-8');
     $enrollmentStatus = trim(htmlspecialchars($_GET['status'], ENT_QUOTES, 'UTF-8'));
     $creditHours = htmlspecialchars($_GET['creditHours'], ENT_QUOTES, 'UTF-8');
+    $results = htmlspecialchars($_GET['results'], ENT_QUOTES, 'UTF-8');
     $description = htmlspecialchars($_GET['description'], ENT_QUOTES, 'UTF-8');
 } else {
     echo "No course details available.";
@@ -26,8 +27,22 @@ if (isset($_GET['id'], $_GET['name'], $_GET['prerequisite'], $_GET['year'], $_GE
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_SESSION['Userid'])) {
         $userId = $_SESSION['Userid'];
+        $resultsTrimme= trim($results);
+        if (strcasecmp($resultsTrimme, 'Fail') === 0) {
+            $updateStmt = $conn->prepare("UPDATE Enrollments SET Status = 'Waiting' WHERE userid = :userid AND SubjectID = :subjectId AND Semester = :semester");
+            $updateStmt->bindParam(':userid', $userId, PDO::PARAM_INT);
+            $updateStmt->bindParam(':subjectId', $courseId, PDO::PARAM_STR);
+            $updateStmt->bindParam(':semester', $semester, PDO::PARAM_STR);
+            if ($updateStmt->execute()) {
+                // Optionally, redirect or notify the user
+                header("Location: dashboard.php");
+                exit();
+            } else {
+                throw new Exception('Failed to update enrollment status. Please try again.');
+            }
 
-        // Prepare SQL statement to insert enrollment
+        }else{
+             // Prepare SQL statement to insert enrollment
         $insertStmt = $conn->prepare("INSERT INTO Enrollments (userid, SubjectID, Semester, Status) VALUES (:userid, :subjectId, :semester, 'Waiting')");
         $insertStmt->bindParam(':userid', $userId, PDO::PARAM_INT);
         $insertStmt->bindParam(':subjectId', $courseId, PDO::PARAM_STR); // Assuming SubjectID is a string
@@ -40,6 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             throw new Exception('Failed to enroll in the subject. Please try again.');
         }
+
+        }
+       
     } else {
         echo "User is not logged in.";
     }
@@ -113,7 +131,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="sidebar">
             <ul>
                 <li><a href="dashboard.php">Dashboard</a></li>
-                <li><a href="enrol.php">Enroll in Course</a></li>
                 <li><a href="enrolled-courses.php">Enrolled Courses</a></li>
                 <li><a href="edit-profile.php">Edit Profile</a></li>
                 <li><a href="logout.php">Logout</a></li>
@@ -155,21 +172,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <span><?php echo $creditHours; ?></span>
                 </div>
                 <div class="detail-item">
+                    <label for="creditHours">Result:</label>
+                    <span><?php echo $results; ?></span>
+                </div>
+                <div class="detail-item">
                     <label for="creditHours">Description:</label>
                     <span><?php echo $description; ?></span>
                 </div>
                 <?php
-                // Check enrollment status
-                if (strcasecmp($enrollmentStatus, 'Available') === 0): // Case-insensitive comparison
-                ?>
-                    <form action="" method="post">
-                        <input type="hidden" name="courseid" value="<?php echo htmlspecialchars($courseId, ENT_QUOTES, 'UTF-8'); ?>">
-                        <button type="submit" class="enroll-button">Enroll Now</button>
-                        <a href="dashboard.php" class="enroll-button">Cancel</a>
-                    </form>
-                <?php else: ?>
-                    <a href="<?php echo htmlspecialchars($_SESSION['referrer'], ENT_QUOTES, 'UTF-8'); ?>" class="enroll-button">Back</a>
-                <?php endif; ?>
+// Debugging: Print values of $enrollmentStatus and $results
+$enrollmentStatusTrimmed = trim($enrollmentStatus);
+$resultsTrimmed = trim($results);
+// Check if enrollmentStatus is 'Available' or results is 'Fail'
+if (strcasecmp($enrollmentStatusTrimmed, 'Waiting') === 0 ): // Case-insensitive comparison
+?>
+<a href="<?php echo htmlspecialchars($_SESSION['referrer'], ENT_QUOTES, 'UTF-8'); ?>" class="enroll-button">Back</a>
+<?php else: ?>
+    <?php
+// Debugging: Print values of $enrollmentStatus and $results
+$enrollmentStatusTrimmed = trim($enrollmentStatus);
+$resultsTrimmed = trim($results);
+// Check if enrollmentStatus is 'Available' or results is 'Fail'
+if (strcasecmp($enrollmentStatusTrimmed, 'Available') === 0 || strcasecmp($resultsTrimmed, 'Fail') === 0 ): // Case-insensitive comparison
+?>
+    <form action="" method="post">
+        <!-- Protecting courseId with htmlspecialchars -->
+        <input type="hidden" name="courseid" value="<?php echo htmlspecialchars($courseId, ENT_QUOTES, 'UTF-8'); ?>">
+        <button type="submit" class="enroll-button">Enroll Now</button>
+        <a href="dashboard.php" class="enroll-button">Cancel</a>
+    </form>
+<?php else: ?>
+    <a href="<?php echo htmlspecialchars($_SESSION['referrer'], ENT_QUOTES, 'UTF-8'); ?>" class="enroll-button">Back</a>
+<?php endif; ?>
+
+ <?php endif; ?>
+
+               
             </div>
         </div>
     </div>
