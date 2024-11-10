@@ -1,190 +1,127 @@
-CREATE TABLE Majors (
-    MajorID INT PRIMARY KEY,
-    MajorName VARCHAR(255) NOT NULL,
-    Department VARCHAR(255) NOT NULL
+# SE
+student Enrollment
+after download  remove st folder. 
+After download place th foder in XAMPP/htdocs/folder
+
+------create table for user and inser data in database------. 
+
+USE se; CREATE TABLE users ( id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(50) NOT NULL, password VARCHAR(255) NOT NULL, role VARCHAR(50), firstname VARCHAR(255), lastname VARCHAR(255), email VARCHAR(255), contactnumber VARCHAR(20), address TEXT );
+
+
+
+INSERT INTO users (username, password, role, firstname, lastname, email, contactnumber, address) VALUES ('teja', 'teja123', 'user', 'Teja', 'Chunchu', 'teja.chunchu577@gmail.com', '225066554', '3 Papawai Place, Milson, Palmerston North'), ('admin', 'admin123', 'admin', 'Admin', 'User', 'admin@example.com', '1234567890', '1 Admin Street, Admin City');
+
+------create table for courses and insert data in database------. 
+
+CREATE TABLE courses (
+    courseid INT AUTO_INCREMENT PRIMARY KEY, -- Primary key for the course table
+    userid INT NOT NULL,                    -- Foreign key to reference the user
+    subjectid VARCHAR(50),                -- Subject ID
+    subjectname VARCHAR(255) NOT NULL,     -- Name of the subject
+    prerequisite VARCHAR(255),             -- Prerequisite for the course
+    year INT,                              -- Academic year
+    sem INT,                               -- Semester
+    coursetype VARCHAR(50),                -- Type of course (e.g., elective, core)
+    enrollmentStatus VARCHAR(50),          -- Status of enrollment (e.g., open, closed)
+    creditHour INT,                        -- Number of credit hours
+    description TEXT,                      -- Description of the course
+    FOREIGN KEY (userid) REFERENCES users(id) -- Foreign key to the users table
+    
 );
 
+INSERT INTO courses (userid, subjectid, subjectname, prerequisite, year, sem, coursetype, enrollmentStatus, creditHour, description) VALUES
+(1, 'D101', 'Programming Fundamentals', NULL, 1, 2, 'Elective', 'Enrolled', 120, 'To provide an introduction to the fundamentals of programming and to enable students to develop quality software. Learning Outcomes: Develop an application using an industry standard language. Debug, test, and document a software application. Demonstrate understanding of the fundamentals of software development.'),
+(2, 'D111', 'Database Fundamentals', NULL, 2, 1, 'Elective', 'Enrolled', 105, 'To provide students with a broad operational knowledge of database design and administration. Learning Outcomes: Design a relational database to meet organisational requirements. Apply interaction design concepts to a user interface. Store and retrieve organisational data using query and reporting tools. Demonstrate knowledge of database design and administration.'),
+(1, 'I101', 'Information System Fundamentals', NULL, 1, 2, 'Elective', 'Available', 90, 'To introduce students to business information systems and essential components of the ICT profession. Learning Outcomes: Describe information systems principles, roles and functional business areas. Communicate effectively and professionally using industry standard tools. Apply and explain professional, legal, and ethical principles relevant to the ICT industry.'),
+(1, 'I102', 'Technical Support Fundamentals', NULL, 2, 1, 'Elective', 'Available', 105, 'To enable students to deliver organisational technical support based on best practice in IT Service Management. Learning Outcomes: Apply a user needs analysis to identify organisational requirements. Create, deliver, and evaluate a training session. Develop technical documentation to a professional standard. Demonstrate knowledge of best practice IT service management.'),
+(1, 'I111', 'Web Fundamentals', NULL, 1, 2, 'Major', 'Enrolled', 105, 'To provide an introduction to the fundamentals of web development and to enable students to produce quality websites. Learning Outcomes: Design a website according to UX design principles that meets organizational requirements. Develop a website using an industry standard approach. Demonstrate understanding of the fundamentals of website development.'),
+(2, 'I121', 'Systems Analysis Fundamentals', NULL, 2, 2, 'Major', 'Enrolled', 90, 'To provide an introduction to the principles of systems analysis and systems requirements elicitation techniques. Learning Outcomes: Analyse situations requiring problem solving. Elicit and model user requirements using a variety of techniques. Construct accurate systems analysis documentation reflecting requirements.'),
+(1, 'T101', 'Network Fundamentals', NULL, 2, 1, 'Major', 'Enrolled', 95, 'To provide an introduction to the fundamentals of computer networks as they currently exist in industry and to enable students to configure, test and troubleshoot local area networks. (Cisco ITN). Learning Outcomes: Describe the operation of current network technologies. Select the most appropriate network technologies for a given scenario. Apply testing and troubleshooting techniques to networking problems.'),
+(1, 'T111', 'Computer Hardware Fundamentals', NULL, 2, 1, 'Elective', 'Enrolled', 105, 'To equip students with an understanding of the fundamental of computer hardware, operating systems and troubleshooting techniques. Learning Outcomes: Describe the purpose and operation of major computer components and operating systems. Demonstrate use of a command line interface (CLI). Demonstrate ability to select, install, troubleshoot and configure IT hardware and systems software.'),
+(2, 'I213', 'Dynamic Web Solutions', 'I111', 1, 2, 'Major', 'Enrolled', 105, 'To create a dynamic web application utilising a variety of open-source technologies. Learning Outcomes: Design and document a web application. Secure critical business data within the web application. Interface with a web based database management system. Implement user security and session management.'),
+(2, 'I221', 'Analysis and Design', 'I121', 2, 2, 'Major', 'Enrolled', 105, 'To analyse the requirements for an information system and evaluate different methodologies used in systems analysis. Learning Outcomes: Create analysis documentation for a moderately complex system. Create design documentation for the system under investigation. Implement quality processes to ensure accuracy of analysis and design documentation.'),
+(2, 'I212', 'Enterprise Data Management', 'I111 & I101', 1, 2, 'Elective', 'Available', 105, 'To enable students to design and implement enterprise data management systems. Learning Outcomes: Compare and select appropriate enterprise data management systems. Design an enterprise data management system structure. Implement an enterprise data management system including automated processes.'),
+(2, 'I202', 'IT Project Management', 'I102', 2, 1, 'Major', 'Enrolled', 95, 'To learn the basic principles and terminology of the profession of project management, and apply this to create project plans. Students will also be given a brief introduction to using project management software. Learning Outcomes: Examine, discuss and apply the knowledge areas of project management. Develop a project plan for an IT related project. Use project management software to create a Gantt chart for scheduled activities and assigned resources, including people, equipment and their relevant costs. Use project management software to analyse project data and produce reports.'),
+(2, 'I203', 'Digital Multimedia', 'I101', 2, 1, 'Major', 'Enrolled', 95, 'To apply principles and techniques relating to the application of digital multimedia technologies. Learning Outcomes: Describe the concepts of digital images, video and audio. Create and manipulate digital image, video and audio files according to a technical specification for distribution across the ICT infrastructure. Optimise digital multimedia for commonly used ICT mediums.'),
+(1, 'I209', 'Industry Placement', '120 credits at L5', 2, 1, 'Major', 'Enrolled', 95, 'To enable students to undertake an ICT industry based work placement. The industry placement course is subject to availability and approval from the Academic Portfolio Manager. Learning Outcomes: Work within an ICT industry based environment. Meet work placement expectations and requirements. Record and evaluate work and progress. Present placement outcomes to academic supervisors.'),
+(1, 'D211', 'Database Development', 'D111', 2, 1, 'Major', 'Enrolled', 95, 'To effectively design an information system for a complex business application. Learning Outcomes: Evaluate alternative design solutions. Design a complex information system. Create a prototype from a design. Formulate quality processes.'),
+(1, 'D202', 'Software Process', 'D101', 1, 2, 'Elective', 'Available', 105, 'To create quality software applications utilising a modern development approach. Learning Outcomes: Undertake a team based iterative development project. Effectively manage an individual development task. Implement processes to ensure quality. Compare and select an appropriate development method for a given problem.'),
+(1, 'D201', 'Advanced Programming', 'D101', 2, 2, 'Elective', 'Available', 105, 'To introduce standard algorithms required for business application programming. Learning Outcomes: Design and Construct small applications using a variety of algorithms. Devise test plans to ensure quality software. Create system maintenance documentation.'),
+(1, 'T201', 'Network Services', 'T101', 1, 2, 'Elective', 'Not Available', 105, 'To implement key network services as used in modern LANs and to explain the network protocols that these services use. Learning Outcomes: Analyse and evaluate network services. Implement and configure network services. Analyse and diagnose faults within network services.'),
+(1, 'T205', 'Networks (Cisco ITN)', NULL, 2, 1, 'Elective', 'Available', 105, 'To enable students to gain practical and technical networking knowledge that will assist in designing, building and analysing networks and their protocols. Learning Outcomes: Describe the devices and services used to support communications in data networks and the internet. Describe the role of protocol layers in data networks. Describe the importance of addressing and naming schemes at various layers of data networks in IPv4 and IPv6 environments. Design, calculate, and apply subnet masks and addresses to fulfil given requirements in IPv4 and IPv6 networks. Explain fundamental Ethernet concepts such as media, services, and operations. Build a simple Ethernet network using routers and switches. Use CISCO command-line interface (CLI) commands to perform basic router and switch configurations. Utilise common network utilities to verify small network operations and analyse data traffic.'),
+(1, 'T206', 'Networks (CISCO SWRE)', 'T101', 1, 2, 'Elective', 'Available', 105, 'To enable students to gain practical and technical networking knowledge that will allow them to configure and troubleshoot routers, switches and resolve common issues with networks. Learning Outcomes: Describe basic switching concepts and the operation of CISCO switches. Describe the purpose, nature, and operations of a router, routing tables, and the route lookup process. Describe how VLANs create logically separate networks and how routing occurs between them. Configure and troubleshoot static routing.')
 
+CREATE TABLE majors
+major_name varchar(255),
+subject_id varchar(50),
+subject_name varchar(255),
+year int,
+sem int
 
-INSERT INTO Majors (MajorID, MajorName, Department) VALUES
-(1, 'Software Engineering', 'Bachelor of Information & Communications Technology'),
-(2, 'Data Management & Analytics', 'Bachelor of Information & Communications Technology'),
-(3, 'Web and Mobile Development', 'Bachelor of Information & Communications Technology'),
-(4, 'Business and Systems Analysis', 'Bachelor of Information & Communications Technology'),
-(5, 'Systems Administration', 'Bachelor of Information & Communications Technology'),
-(6, 'Network Engineering', 'Bachelor of Information & Communications Technology'),
-(7, 'Security', 'Bachelor of Information & Communications Technology'),
-(8, 'Project Management', 'Bachelor of Information & Communications Technology');
+INSERT into majors(major_name, subject_id, subject_name, year, sem)
+VALUES('Software Engineering (Plus 5 Year 2 Electives)', 'D201', 'Advanced Programming', '2', '1'),
+ ('Software Engineering', 'D202', 'Software Process', '2', '2'),
+ ('Software Engineering', 'D211', 'Database Development', '2', '1'),
+ ('Software Engineering (Plus 1 Year 3 Elective)', 'D211', 'Software Engineering', '3', '1'),
+ ('Software Engineering', 'D303', 'Mobile Application Development', '3', '2'),
+ ('Software Engineering', 'I302', 'Industry Project', '3', '2'),
+ ('Software Engineering', 'I301', 'Professional Practice', '3', '1'),
+ ('Data Management & Analytics (Plus 5 Year 2 Electives)', 'D211', 'Database Development', '2', '1'),
+ ('Data Management & Analytics', 'D201', 'Advanced Programming', '2', '1'),
+ ('Data Management & Analytics', 'I212', 'Enterprise Data Management', '2', '1'),
+ ('Data Management & Analytics (Plus 1 Year 3 Elective)', 'D311', 'Advanced Database Concepts', '3', 1'),
+ ('Data Management & Analytics', 'I304', 'Data Analytics and Intelligence', '3', '2'),
+ ('Data Management & Analytics', 'I301', 'Professional Practice', '3', '1'),
+ ('Data Management & Analytics', 'I302', 'Industry Project', '3', '2'),
+ ('Web and Mobile Development (Plus 5 Year 2 Electives)', 'D211', 'Database Development', '2', '1'),
+ ('Web and Mobile Development', 'I213', 'Dynamic Web Soultions', '2', '2'),
+ ('Web and Mobile Development', 'I203', 'Digital Multimedia', '2', '1'),
+ ('Web and Mobile Development', 'D303', 'Mobile Application Development', '3', '2'),
+ ('Web and Mobile Development', 'I311', 'Advanced Web Solutions', '3', '1'),
+ ('Web and Mobile Development', 'I302', 'Industry Project', '3', '2'),
+ ('Web and Mobile Development', 'I301', 'Professional Practice', '3', '1'),
+ ('Business and Systems Analysis (Plus 5 Year 2 Electives)', 'D211', 'Database Development', '2', '1'),
+ ('Business and Systems Analysis, 'I221', 'Analysis and Design', '2', '2'),
+ ('Business and Systems Analysis, 'D202', 'Software Process', '2', '2'),
+ ('Business and Systems Analysis, 'I303', 'Management of Information and Communication Technology', '3', '2')
 
-CREATE TABLE Subjects (
-    SubjectID VARCHAR(50) PRIMARY KEY, 
-    SubjectName VARCHAR(255) NOT NULL,
-    Prerequisite VARCHAR(255), 
-    StudyYear INT,              
-    Sem VARCHAR(20),            
-    CourseType VARCHAR(50),    
-    EnrollmentStatus VARCHAR(20), 
-    CreditHours INT NOT NULL,
-    Description TEXT 
+ -- Create the admins table
+CREATE TABLE admins (
+  id VARCHAR(255) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL
 );
 
+-- Insert data into the admins table
+INSERT INTO admins (id, name, email) VALUES
+('a1', 'Navdeep Singh', 'nsingh@gmail.com');
 
-
-INSERT INTO Subjects (SubjectID, SubjectName, Prerequisite, StudyYear, Sem, CourseType, EnrollmentStatus, CreditHours, Description) VALUES
-('D201', 'Advanced Programming', NULL, 2, '1', 'Major', 'Available', 105, 'Advanced concepts in programming.'),
-('D202', 'Software Process', NULL, 2, '2', 'Major', 'Available', 105, 'Understanding software development processes.'),
-('D211', 'Database Development', NULL, 2, '1', 'Major', 'Available', 105, 'Database design and implementation.'),
-('I212', 'Enterprise Data Management', NULL, 2, '1', 'Major', 'Available', 105, 'Managing enterprise data effectively.'),
-('I213', 'Dynamic Web Solutions', NULL, 2, '2', 'Major', 'Available', 105, 'Creating dynamic web applications.'),
-('I203', 'Digital Multimedia', NULL, 2, '1', 'Major', 'Available', 105, 'Introduction to digital multimedia.'),
-('I221', 'Analysis and Design', NULL, 2, '2', 'Major', 'Available', 105, 'Techniques for system analysis and design.'),
-('T201', 'Network Services', NULL, 2, '1', 'Major', 'Available', 105, 'Introduction to network services.'),
-('T211', 'Systems Security', NULL, 2, '2', 'Major', 'Available', 105, 'Principles of systems security.'),
-('T206', 'Networks (Cisco RSE)', NULL, 2, '1', 'Major', 'Available', 105, 'Cisco networking concepts.'),
-('T207', 'Networks (Cisco SRWE)', NULL, 2, '1', 'Major', 'Available', 105, 'Cisco networking security concepts.'),
-('I263', 'Introduction to Finance', NULL, 2, '1', 'Major', 'Available', 105, 'Basics of finance in projects.'),
-('I202', 'IT Project Management', NULL, 2, '2', 'Major', 'Available', 105, 'Principles of managing IT projects.');
-
-
-INSERT INTO Subjects (SubjectID, SubjectName, Prerequisite, StudyYear, Sem, CourseType, EnrollmentStatus, CreditHours, Description)
-VALUES 
-('D301', 'Software Engineering', NULL , 3, '1', 'Major', 'Available', 105, 'Software Engineering Sem'),
-('D303', 'Mobile Application Development', NULL , 3, '2', 'Major', 'Available', 105, 'Mobile App Development'),
-('I302', 'Industry Project', NULL , 3, '2','Major', 'Available', 105, 'Industry Project'),
-('D311', 'Advanced Database Concepts', NULL , 3, '1', 'Major', 'Available', 105, 'Advanced Database Concepts'),
-('I304', 'Data Analytics and Intelligence', NULL , 3, '2', 'Major', 'Available', 105, 'Data Analytics and Intelligence'),
-('I311', 'Advanced Web Solutions', NULL , 3, '1 or 2', 'Major', 'Available', 105, 'Advanced Web Solutions'),
-('I303', 'Management of Information and Communication Technology', NULL , 3, '2', 'Major', 'Available', 105, 'Management of ICT'),
-('I321', 'Advanced Systems Analysis', NULL , 3, '1', 'Major', 'Available', 105, 'Advanced Systems Analysis'),
-('I367', 'Advanced Project Management', NULL , 3, '1 or 2', 'Major', 'Available', 105, 'Advanced Project Management'),
-('T311', 'Systems Administration', NULL , 3, '2', 'Major', 'Available', 105, 'Systems Administration'),
-('T301', 'Network Design', NULL , 3, '1', 'Major', 'Available', 105, 'Network Design'),
-('T302', 'Cisco Scaling and Connecting Networks', NULL , 3, '2', 'Major', 'Available', 105, 'Cisco Scaling and Connecting Networks'),
-('T312', 'Network Security', NULL , 3, '1', 'Major', 'Available', 105, 'Network Security');
-
-INSERT INTO Subjects (SubjectID, SubjectName, Prerequisite, StudyYear, Sem, CourseType, EnrollmentStatus, CreditHours, Description) VALUES
-('D101', 'Programme Fundamentals', NULL, 1, '2', 'Major', 'Available', 105, 'Introduction to programming concepts and methodologies.'),
-('D111', 'Database Fundamentals', NULL, 1, '1', 'Major', 'Available', 105, 'Fundamentals of database design and management.'),
-('I101', 'Information Systems Fundamentals', NULL, 1, '1', 'Major', 'Available', 105, 'Overview of information systems and their role in organizations.'),
-('I102', 'Technical Support Fundamentals', NULL, 1, '2', 'Major', 'Available', 105, 'Principles of technical support and troubleshooting techniques.'),
-('I111', 'Web Fundamentals', NULL, 1, '2', 'Major', 'Available', 105, 'Basic concepts of web development and design.'),
-('I121', 'Systems Analysis Fundamentals', NULL, 1, '1', 'Major', 'Available', 105, 'Introduction to systems analysis and design methodologies.'),
-('T101', 'Network Fundamentals', NULL, 1, '2', 'Major', 'Available', 105, 'Basic principles of networking and communication technologies.'),
-('T111', 'Computer Hardware Fundamentals', NULL, 1, '1', 'Major', 'Available', 105, 'Overview of computer hardware components and their functions.');
-
-
-
-CREATE TABLE SubjectMajors (
-    SubjectID VARCHAR(50),                       -- Foreign key linking to Subjects
-    MajorID INT,                                 -- Foreign key linking to Majors
-    PRIMARY KEY (SubjectID, MajorID),           -- Composite primary key
-    FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID) ON DELETE CASCADE,
-    FOREIGN KEY (MajorID) REFERENCES Majors(MajorID) ON DELETE CASCADE);
-
-
-
--- Linking Subjects to Majors
-INSERT INTO SubjectMajors (SubjectID, MajorID) VALUES
-('D201', 1),  
-('D202', 1),  
-('D211', 1),
-('D211', 2),
-('D201', 2),
-('I212', 2),
-('D211', 3),
-('I213', 3),
-('I203', 3),
-('D211', 4),
-('I221', 4),
-('D202', 4),
-('D211', 5),
-('T201', 5),
-('T211', 5),
-('T201', 6),
-('T206', 6),
-('T211', 6),
-('D202', 7),
-('I212', 7),
-('I263', 7),
-('I202', 7);
-
-INSERT INTO SubjectMajors (SubjectID, MajorID) VALUES ('D301', 1), ('D303', 1), ('I302', 1), ('D311', 2), ('I304', 2), ('I302', 2), ('D303', 3), ('I311', 3), ('I302', 3), ('I303', 4), ('I321', 4), ('I302', 4), ('D311', 5), ('T311', 5), ('I302', 5), ('T301', 6), ('T302', 6), ('I302', 6), ('T311', 7), ('T312', 7), ('I302', 7), ('I303', 8), ('I367', 8), ('I302', 8);
-
-CREATE TABLE Electives (
-    subjectID VARCHAR(50) PRIMARY KEY,
-    Department VARCHAR(100) NOT NULL,
-    StudentYear INT NOT NULL
+-- Create the students table
+CREATE TABLE students (
+    id INT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    major VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Insert data into the students table
+INSERT INTO students (id, name, email, major) VALUES
+(1, 'Anderson', 'janderson@gmail.com', 'Data Analytics and Intelligence'),
+(2, 'Michael Brown', 'mbrown@gmail.com', 'Data Analytics and Intelligence');
 
-INSERT INTO Electives (SubjectID, Department, StudentYear) VALUES 
-('D201', 'Bachelor of Information & Communications Technology', 2),
-('T206', 'Bachelor of Information & Communications Technology', 2),
-('T201', 'Bachelor of Information & Communications Technology', 2),
-('I263', 'Bachelor of Information & Communications Technology', 2),
-('I221', 'Bachelor of Information & Communications Technology', 2),
-('I213', 'Bachelor of Information & Communications Technology', 2),
-('I212', 'Bachelor of Information & Communications Technology', 2),
-('I203', 'Bachelor of Information & Communications Technology', 2),
-('I202', 'Bachelor of Information & Communications Technology', 2),
-('D211', 'Bachelor of Information & Communications Technology', 2),
-('D202', 'Bachelor of Information & Communications Technology', 2),
-('T211', 'Bachelor of Information & Communications Technology', 2);
-
-INSERT INTO Electives (SubjectID, Department, StudentYear) VALUES 
-('D301', 'Bachelor of Information & Communications Technology', 3),
-('D303', 'Bachelor of Information & Communications Technology', 3),
-('D311', 'Bachelor of Information & Communications Technology', 3),
-('I303', 'Bachelor of Information & Communications Technology', 3),
-('I304', 'Bachelor of Information & Communications Technology', 3),
-('I311', 'Bachelor of Information & Communications Technology', 3),
-('I321', 'Bachelor of Information & Communications Technology', 3),
-('I367', 'Bachelor of Information & Communications Technology', 3),
-('T301', 'Bachelor of Information & Communications Technology', 3),
-('T302', 'Bachelor of Information & Communications Technology', 3),
-('T311', 'Bachelor of Information & Communications Technology', 3),
-('T312', 'Bachelor of Information & Communications Technology', 3);
-
-
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    role VARCHAR(50),
-    firstname VARCHAR(255),
-    lastname VARCHAR(255),
-    email VARCHAR(255),
-    contactnumber VARCHAR(20),
-    address TEXT,
-    MajorName1 VARCHAR(255),
-    MajorName2 VARCHAR(255),
-    StudentYear INT
+-- Create the profiles table
+CREATE TABLE profiles (
+    id CHAR(2) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    contactnumber VARCHAR(10) NOT NULL,
+    address VARCHAR(255) NOT NULL
 );
 
-
-
-INSERT INTO users (username, password, role, firstname, lastname, email, contactnumber, address, MajorName1, MajorName2, StudentYear) VALUES 
-('teja', 'teja123', 'user', 'Teja', 'Chunchu', 'teja.chunchu577@gmail.com', '225066554', '3 Papawai Place, Milson, Palmerston North', NULL, NULL, 2), 
-('admin', 'admin123', 'admin', 'Admin', 'User', 'admin@example.com', '1234567890', '1 Admin Street, Admin City', NULL , NULL, 2);
-
-CREATE TABLE Enrollments (
-    EnrollmentID INT PRIMARY KEY AUTO_INCREMENT,
-    userid INT NOT NULL,
-    SubjectID VARCHAR(50),
-    Semester VARCHAR(20) NOT NULL,
-    Status VARCHAR(20) NOT NULL,
-    results VARCHAR(255),
-    FOREIGN KEY (userid) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID) ON DELETE CASCADE
-);
-
-
-UPDATE Enrollments
-SET Status = 'Enrolled'
-WHERE userid = 2 AND SubjectID = 'D201';
-
-
-
-
-
-
+-- Insert data into the profiles table
+INSERT INTO profiles (id, name, email, contactnumber, address) VALUES
+('a0', 'Admin User', 'admin@example.com', '1234567890', 'Admin Street, Admin City'),
+('1', 'John Anderson', 'janderson@gmail.com', '1234567890', 'Student Street, Student City'),
+('2', 'Michael Brown', 'mbrown@gmail.com', '345678912', 'Student Street, Student City'),
+('a1', 'Navdeep Singh', 'nsingh@gmail.com', '1234567890', 'Admin Street, Admin City');
