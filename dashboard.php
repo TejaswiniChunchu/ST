@@ -252,13 +252,16 @@ try {
     }
     $Totalcredits = 0;
     $ResultI301 = "";
+    $yearoneCredits = "";
+    $yearTwoCredits = "";
 
     foreach ($subjects as $subject) {
         if (trim($subject['results']) === 'Pass' && trim($subject['CourseType']) === 'Major'  &&  ($subject['StudyYear'] === 1 || $subject['StudyYear'] === 2)) {
             $Totalcredits += $subject['credits'];  // Assuming 'CreditHours' contains the credit value
+           
         }
     }
-      
+    $yearoneCredits = $Totalcredits;
       
       if($majorID1 === 8 || $majorID2=== 8){
         if($Totalcredits >= 195){
@@ -294,9 +297,9 @@ try {
     }
 
   
-  echo $Totalcredits;
     $_SESSION['Totalcredits'] = $Totalcredits;
     $_SESSION['ResultI301'] = $ResultI301;
+    $_SESSION['yearoneCredits'] = $yearoneCredits;
 
 
 
@@ -482,6 +485,7 @@ try {
                         <th>Course Type</th>
                         <th>Enrollment Status</th>
                         <th>Credit</th>
+                        <th>Result</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -513,8 +517,16 @@ try {
                             <td><?php echo htmlspecialchars($subject['Sem'], ENT_QUOTES, 'UTF-8'); ?></td>
                             <td><?php echo htmlspecialchars($subject['CourseType'], ENT_QUOTES, 'UTF-8'); ?></td>
                             <td><?php echo htmlspecialchars($subject['EnrollmentStatus'], ENT_QUOTES, 'UTF-8'); ?></td>
-                            <td><?php echo htmlspecialchars($subject['results'], ENT_QUOTES, 'UTF-8'); ?></td>
                             <td><?php echo htmlspecialchars($subject['credits'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td>
+                              <?php 
+                                if (trim($subject['results']) === 'Pass') {
+                                echo "Completed";
+                                 } else if (trim($subject['results']) === 'Fail'){
+                                  echo "Incomplete";
+                                }
+                              ?>
+                                </td>
                         </tr>
                    
                 <?php endforeach; ?>

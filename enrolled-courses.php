@@ -195,6 +195,7 @@ foreach ($waitingCourses as &$subject) {
                 <th>Course Type</th>
                 <th>Enrollment Status</th>
                 <th>Credit</th>
+                <th>Result</th>
                
             </tr>
         </thead>
@@ -225,6 +226,13 @@ foreach ($waitingCourses as &$subject) {
                         echo "<td>" . htmlspecialchars($course['CourseType'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "<td>" . htmlspecialchars($course['Status'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "<td>" . htmlspecialchars($course['credits'], ENT_QUOTES, 'UTF-8') . "</td>";
+                        echo "<td>";
+                        if (trim($course['results']) === 'Pass') {
+                            echo "Completed";
+                        } else if (trim($course['results']) === 'Fail') {
+                            echo "Incomplete";
+                        }
+                        echo "</td>";
                         echo "</tr>";
 
                     }

@@ -28,7 +28,7 @@ if (isset($_SESSION['Userid'])) {
     $userId = $_SESSION['Userid'];
     $Totalcredits = $_SESSION['Totalcredits'];
     $ResultI301 = $_SESSION['ResultI301']  ;
-   
+    $yearoneCredits = $_SESSION['yearoneCredits']  ;
    
 if (stripos($courseId, "I301") === 0 || stripos($courseId, "I309") === 0  || stripos($courseId, "I302") === 0) {
 
