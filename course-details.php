@@ -1,7 +1,7 @@
 <?php
 session_start();
 include('database/connection.php');
-
+$resultString = "";
 // Store the referring page URL
 $_SESSION['referrer'] = $_SERVER['HTTP_REFERER'];
 
@@ -23,6 +23,173 @@ if (isset($_GET['id'], $_GET['name'], $_GET['prerequisite'], $_GET['year'], $_GE
     echo "No course details available.";
     exit; // Stop execution if the required data is not present
 }
+
+if (isset($_SESSION['Userid'])) {
+    $userId = $_SESSION['Userid'];
+    $Totalcredits = $_SESSION['Totalcredits'];
+    $ResultI301 = $_SESSION['ResultI301']  ;
+   
+   
+if (stripos($courseId, "I301") === 0 || stripos($courseId, "I309") === 0  || stripos($courseId, "I302") === 0) {
+
+if(stripos($courseId, "I302") === 0){
+ 
+    
+    if ($Totalcredits >= 265 && trim($ResultI301) === 'Pass') {
+       
+        $resultsString = 'Pass';
+    } else {
+
+        $resultsString = 'Fail';
+    }
+
+}else{
+    if($Totalcredits >= 240){
+        $resultsString = 'Pass';
+        
+    }else {
+        $resultsString = 'Fail';
+    }
+}
+
+
+   
+} else {
+
+   
+    $prerequisite = trim($prerequisite); // Remove leading and trailing spaces
+
+    if (!empty($prerequisite)) {
+        try {
+            // Decode entities and clean up the prerequisite format
+             // Example; replace with actual variable
+             $symbolDetected = null;
+            
+    
+    // Check for '&' symbol
+    if (strpos($prerequisite, "&") !== false) {
+        $symbolDetected = "&";
+    } 
+    // Check for 'or' keyword
+    elseif (strpos($prerequisite, "or") !== false) {
+        $symbolDetected = "or";
+    } elseif (strpos($prerequisite, ",") !== false) {
+        $symbolDetected = ",";
+    }
+    // If no symbol is detected, treat it as single data
+    else {
+        $symbolDetected = "none";
+    }
+    
+    
+    
+            $prerequisiteDecoded = html_entity_decode($prerequisite);
+            $prerequisiteCleaned = str_replace(["&", " or "], ",", $prerequisiteDecoded);
+            $prerequisitesArray = array_map('trim', explode(",", $prerequisiteCleaned));
+    
+            
+    
+            // Prepare SQL query with placeholders
+            $placeholders = implode(",", array_fill(0, count($prerequisitesArray), "?"));
+            $query = "SELECT results  FROM Enrollments WHERE userid = ? AND SubjectID IN ($placeholders)";
+            
+          
+    
+            // Prepare and bind parameters
+            $stmt = $conn->prepare($query);
+            
+            // Bind userId as the first parameter
+            $stmt->bindParam(1, $userId, PDO::PARAM_INT);
+    
+            // Bind each prerequisite SubjectID in the array
+            foreach ($prerequisitesArray as $index => $subjectId) {
+                // Debugging each SubjectID
+                $stmt->bindValue($index + 2, $subjectId, PDO::PARAM_STR); // +2 since userid is the first parameter
+            }
+    
+            // Execute and fetch results
+            $stmt->execute();
+            $enrollmentResultsArray = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+            // Check if results are found
+            if (!empty($enrollmentResultsArray)) {
+               
+               
+               
+                $string ='';
+                 foreach ($enrollmentResultsArray as $record) {
+                $string .= $record['results'];
+               }
+               echo "string " . $string;
+               
+               if(strcasecmp($symbolDetected, '&') === 0 ){
+               
+        
+                if(strcasecmp($string, 'PassPass') === 0 ){
+                    $resultsString = 'Pass';
+                    
+                }else{
+                    $resultsString = 'Fail';
+                  
+                }
+               }else if(strcasecmp($symbolDetected, 'or') === 0 ){
+               
+                if(strcasecmp($string, 'PassPass') === 0 || strcasecmp($string, 'PassFail') === 0|| strcasecmp($string, 'FailPass') === 0  || strcasecmp($string, 'Pass') === 0 ){
+                    $resultsString = 'Pass';
+                   
+                }else {
+                   
+                    $resultsString = 'Fail';
+                }
+               } else if(strcasecmp($symbolDetected, ',') === 0 ){
+               
+        
+                if(strcasecmp($string, 'PassPass') === 0 ){
+                    $resultsString = 'Pass';
+                   
+                }else{
+                    $resultsString = 'Fail';
+                 
+                }
+               }else if(strcasecmp($symbolDetected, 'none') === 0 ){
+                
+                if(strcasecmp($string, 'Pass') === 0){
+                   
+                    $resultsString = 'Pass';
+                }else{
+                    
+                    $resultsString = "Fail";
+                }
+    
+              
+               }
+               
+            } else {
+               
+                $resultsString = '';
+            }
+    
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+        }
+
+       
+    } else {
+        $resultsString = 'Pass';
+    }
+    
+   
+}
+
+
+    
+} else {
+    echo "User is not logged in.";
+}
+
+
+
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_SESSION['Userid'])) {
@@ -179,10 +346,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label for="creditHours">Description:</label>
                     <span><?php echo $description; ?></span>
                 </div>
+                <div class="detail-item">
+                <label for="creditHours">
+    <?php 
+    if (stripos($courseId, "I301") === 0 || stripos($courseId, "I309") === 0  || stripos($courseId, "I302") === 0) {
+        if ( $resultsString === 'Fail') {
+            echo "You have not earned enough credits yet";
+        } 
+    }
+    ?>
+</label>
+                </div>
                 <?php
 // Debugging: Print values of $enrollmentStatus and $results
 $enrollmentStatusTrimmed = trim($enrollmentStatus);
 $resultsTrimmed = trim($results);
+// Remove any HTML tags (like <br>)
+$resultStringCleaned = strip_tags($resultsString);
+
+// Trim any whitespace or newline characters
+$resultStringTrimmed = trim($resultStringCleaned);
+
+
 // Check if enrollmentStatus is 'Available' or results is 'Fail'
 if (strcasecmp($enrollmentStatusTrimmed, 'Waiting') === 0 ): // Case-insensitive comparison
 ?>
@@ -192,8 +377,9 @@ if (strcasecmp($enrollmentStatusTrimmed, 'Waiting') === 0 ): // Case-insensitive
 // Debugging: Print values of $enrollmentStatus and $results
 $enrollmentStatusTrimmed = trim($enrollmentStatus);
 $resultsTrimmed = trim($results);
+
 // Check if enrollmentStatus is 'Available' or results is 'Fail'
-if (strcasecmp($enrollmentStatusTrimmed, 'Available') === 0 || strcasecmp($resultsTrimmed, 'Fail') === 0 ): // Case-insensitive comparison
+if (strcasecmp($enrollmentStatusTrimmed, 'Available') === 0 && strcasecmp($resultStringTrimmed, 'Pass') === 0 ): // Case-insensitive comparison
 ?>
     <form action="" method="post">
         <!-- Protecting courseId with htmlspecialchars -->

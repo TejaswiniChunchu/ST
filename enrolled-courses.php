@@ -69,7 +69,8 @@ try {
         e.Status, 
         s.CreditHours, 
         e.results,
-        s.Description 
+        s.Description,
+        s.credits 
     FROM 
         Enrollments e 
     INNER JOIN 
@@ -193,8 +194,8 @@ foreach ($waitingCourses as &$subject) {
                 <th>Semester</th>
                 <th>Course Type</th>
                 <th>Enrollment Status</th>
-                <th>Credit Hours</th>
-                <th>Results</th>
+                <th>Credit</th>
+               
             </tr>
         </thead>
         <tbody>
@@ -212,7 +213,7 @@ foreach ($waitingCourses as &$subject) {
                             '" . addslashes($course['Sem']) . "', 
                             '" . addslashes($course['CourseType']) . "', 
                             '" . addslashes($course['Status']) . "', 
-                            '" . addslashes($course['CreditHours']) . "',
+                            '" . addslashes($course['Credit']) . "',
                             '" . addslashes($course['results']) . "',
                             '" . addslashes($course['Description']) . "'
                             )\">";
@@ -223,8 +224,7 @@ foreach ($waitingCourses as &$subject) {
                         echo "<td>" . htmlspecialchars($course['Sem'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "<td>" . htmlspecialchars($course['CourseType'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "<td>" . htmlspecialchars($course['Status'], ENT_QUOTES, 'UTF-8') . "</td>";
-                        echo "<td>" . htmlspecialchars($course['CreditHours'], ENT_QUOTES, 'UTF-8') . "</td>";
-                        echo "<td>" . htmlspecialchars($course['results'], ENT_QUOTES, 'UTF-8') . "</td>";
+                        echo "<td>" . htmlspecialchars($course['credits'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "</tr>";
 
                     }

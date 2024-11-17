@@ -82,7 +82,8 @@ try {
         e.Status,
         e.results,
         s.CreditHours, 
-        s.Description 
+        s.Description,
+        s.credits
     FROM 
         Enrollments e 
     INNER JOIN 
@@ -123,7 +124,9 @@ try {
             s.CourseType, 
             s.EnrollmentStatus, 
             s.CreditHours, 
-            s.Description
+            s.Description,
+            s.credits
+
         FROM 
             Subjects s 
         WHERE 
@@ -143,7 +146,7 @@ try {
         // Fetch subjects based on MajorID1
         if ($majorID1 !== null) {
             $query1 = "
-                SELECT s.SubjectID, s.SubjectName, COALESCE(s.Prerequisite, '') AS Prerequisite, s.StudyYear, s.Sem, s.CourseType, s.EnrollmentStatus, s.CreditHours, s.Description
+                SELECT s.SubjectID, s.SubjectName, COALESCE(s.Prerequisite, '') AS Prerequisite, s.StudyYear, s.Sem, s.CourseType, s.EnrollmentStatus, s.CreditHours, s.Description, s.credits
                 FROM Subjects s
                 JOIN SubjectMajors sm ON s.SubjectID = sm.SubjectID
                 WHERE sm.MajorID = :majorID1 
@@ -159,7 +162,7 @@ try {
         // Fetch subjects based on MajorID2
         if ($majorID2 !== null) {
             $query2 = "
-                SELECT s.SubjectID, s.SubjectName, COALESCE(s.Prerequisite, '') AS Prerequisite, s.StudyYear, s.Sem, s.CourseType, s.EnrollmentStatus, s.CreditHours, s.Description
+                SELECT s.SubjectID, s.SubjectName, COALESCE(s.Prerequisite, '') AS Prerequisite, s.StudyYear, s.Sem, s.CourseType, s.EnrollmentStatus, s.CreditHours, s.Description, s.credits
                 FROM Subjects s
                 JOIN SubjectMajors sm ON s.SubjectID = sm.SubjectID
                 WHERE sm.MajorID = :majorID2
@@ -175,7 +178,7 @@ try {
         // Fetch subjects based on Electives
         if ($Department !== null && $studentYear !== null) {
             $query3 = "
-                SELECT s.SubjectID, s.SubjectName, COALESCE(s.Prerequisite, '') AS Prerequisite, s.StudyYear, s.Sem, s.CourseType, s.EnrollmentStatus, s.CreditHours, s.Description
+                SELECT s.SubjectID, s.SubjectName, COALESCE(s.Prerequisite, '') AS Prerequisite, s.StudyYear, s.Sem, s.CourseType, s.EnrollmentStatus, s.CreditHours, s.Description, s.credits
                 FROM Subjects s
                 JOIN Electives e ON s.SubjectID = e.SubjectID
                 WHERE e.Department = :department
@@ -231,19 +234,73 @@ try {
    
 
    
-       foreach ($waitingCourses as $course) {
-
+    foreach ($waitingCourses as $course) {
         // Check each subject for a match with the course
         foreach ($subjects as &$subject) { // Use reference (&) to modify the original subject array
             // Check if SubjectID matches (trim to avoid whitespace issues)
             if (trim($subject['SubjectID']) === trim($course['SubjectID'])) {
-                $subject['EnrollmentStatus'] = $course['Status'];
+                // Check if results indicate "Fail" and update EnrollmentStatus accordingly
+                if (isset($course['results']) && trim($course['results']) === 'Fail') {
+                    $subject['EnrollmentStatus'] = 'Available';
+                } else {
+                    $subject['EnrollmentStatus'] = $course['Status'];
+                }
+                // Set the results for reference
                 $subject['results'] = isset($course['results']) ? $course['results'] : '';
-              
             }
         }
     }
+    $Totalcredits = 0;
+    $ResultI301 = "";
+
+    foreach ($subjects as $subject) {
+        if (trim($subject['results']) === 'Pass' && trim($subject['CourseType']) === 'Major'  &&  ($subject['StudyYear'] === 1 || $subject['StudyYear'] === 2)) {
+            $Totalcredits += $subject['credits'];  // Assuming 'CreditHours' contains the credit value
+        }
+    }
+      
+      
+      if($majorID1 === 8 || $majorID2=== 8){
+        if($Totalcredits >= 195){
+            foreach ($subjects as $subject) {
+                if (trim($subject['results']) === 'Pass' && trim($subject['CourseType']) === 'Elective'  &&   ($subject['StudyYear'] === 2)) {
+                    $Totalcredits += $subject['credits']; 
+                    // Assuming 'CreditHours' contains the credit value
+                }else if($subject['StudyYear'] === 3 ){
+                    if($subject['SubjectID'] === 'I301'){
+                    $ResultI301 = $subject['results'];
+                    }
+                    
+                }
+              
+            }
+            
+        }
+      }else   if($Totalcredits >= 180){
     
+        foreach ($subjects as $subject) {
+            if (trim($subject['results']) === 'Pass' && trim($subject['CourseType']) === 'Elective'  &&   ($subject['StudyYear'] === 2)) {
+                $Totalcredits += $subject['credits']; 
+                // Assuming 'CreditHours' contains the credit value
+            }else if($subject['StudyYear'] === 3 ){
+                if($subject['SubjectID'] === 'I301'){
+                $ResultI301 = $subject['results'];
+                }
+                
+            }
+          
+        }
+       
+    }
+
+  
+  echo $Totalcredits;
+    $_SESSION['Totalcredits'] = $Totalcredits;
+    $_SESSION['ResultI301'] = $ResultI301;
+
+
+
+ 
 
     } catch (PDOException $e) {
         // Log error details to a file
@@ -370,8 +427,7 @@ try {
                 <th>Semester</th>
                 <th>Course Type</th>
                 <th>Enrollment Status</th>
-                <th>Credit Hours</th>
-                <th>Results</th>
+                <th>Credits</th>
             </tr>
         </thead>
         <tbody>
@@ -400,8 +456,7 @@ try {
                         echo "<td>" . htmlspecialchars($course['Sem'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "<td>" . htmlspecialchars($course['CourseType'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "<td>" . htmlspecialchars($course['Status'], ENT_QUOTES, 'UTF-8') . "</td>";
-                        echo "<td>" . htmlspecialchars($course['CreditHours'], ENT_QUOTES, 'UTF-8') . "</td>";
-                        echo "<td>" . htmlspecialchars($course['results'], ENT_QUOTES, 'UTF-8') . "</td>";
+                        echo "<td>" . htmlspecialchars($course['credits'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "</tr>";
 
                     }
@@ -426,8 +481,7 @@ try {
                         <th>Semester</th>
                         <th>Course Type</th>
                         <th>Enrollment Status</th>
-                        <th>Credit Hours</th>
-                        <th>Results</th>
+                        <th>Credit</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -459,8 +513,8 @@ try {
                             <td><?php echo htmlspecialchars($subject['Sem'], ENT_QUOTES, 'UTF-8'); ?></td>
                             <td><?php echo htmlspecialchars($subject['CourseType'], ENT_QUOTES, 'UTF-8'); ?></td>
                             <td><?php echo htmlspecialchars($subject['EnrollmentStatus'], ENT_QUOTES, 'UTF-8'); ?></td>
-                            <td><?php echo htmlspecialchars($subject['CreditHours'], ENT_QUOTES, 'UTF-8'); ?></td>
                             <td><?php echo htmlspecialchars($subject['results'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($subject['credits'], ENT_QUOTES, 'UTF-8'); ?></td>
                         </tr>
                    
                 <?php endforeach; ?>

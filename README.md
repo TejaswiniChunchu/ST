@@ -72,7 +72,40 @@ INSERT INTO Subjects (SubjectID, SubjectName, Prerequisite, StudyYear, Sem, Cour
 ('T101', 'Network Fundamentals', NULL, 1, '2', 'Major', 'Available', 105, 'Basic principles of networking and communication technologies.'),
 ('T111', 'Computer Hardware Fundamentals', NULL, 1, '1', 'Major', 'Available', 105, 'Overview of computer hardware components and their functions.');
 
+UPDATE Subjects SET Prerequisite = 'I111' WHERE SubjectID = 'I213';
+UPDATE Subjects SET Prerequisite = 'I121' WHERE SubjectID = 'I221';
+UPDATE Subjects SET Prerequisite = 'I111&I101' WHERE SubjectID = 'I212';
+UPDATE Subjects SET Prerequisite = 'I102' WHERE SubjectID = 'I202';
+UPDATE Subjects SET Prerequisite = 'I101' WHERE SubjectID = 'I203';
+UPDATE Subjects SET Prerequisite = '120 credits at L5' WHERE SubjectID = 'I209';
+UPDATE Subjects SET Prerequisite = 'D111' WHERE SubjectID = 'D211';
+UPDATE Subjects SET Prerequisite = 'D101' WHERE SubjectID = 'D202';
+UPDATE Subjects SET Prerequisite = 'D101' WHERE SubjectID = 'D201';
+UPDATE Subjects SET Prerequisite = 'T101' WHERE SubjectID = 'T201';
+UPDATE Subjects SET Prerequisite = 'T101' WHERE SubjectID = 'T206';
+UPDATE Subjects SET Prerequisite = 'T111' WHERE SubjectID = 'T211';
+UPDATE Subjects SET Prerequisite = '240 credits includes all level 5 & level6 compulsory papers' WHERE SubjectID = 'I301';
+UPDATE Subjects SET Prerequisite = '280 credits including I301 and all compulsory level 5, 6 papers' WHERE SubjectID = 'I302';
+UPDATE Subjects SET Prerequisite = 'I221' WHERE SubjectID = 'I321';
+UPDATE Subjects SET Prerequisite = 'I213' WHERE SubjectID = 'I311';
+UPDATE Subjects SET Prerequisite = 'D211, I212' WHERE SubjectID = 'I304';
+UPDATE Subjects SET Prerequisite = '240 Credits including all compulsory level 5 and 6 courses' WHERE SubjectID = 'I309';
+UPDATE Subjects SET Prerequisite = 'D201 or D202' WHERE SubjectID = 'D301';
+UPDATE Subjects SET Prerequisite = 'D101' WHERE SubjectID = 'D303';
+UPDATE Subjects SET Prerequisite = 'D211' WHERE SubjectID = 'D311';
+UPDATE Subjects SET Prerequisite = 'T201' WHERE SubjectID = 'T301';
+UPDATE Subjects SET Prerequisite = 'T206' WHERE SubjectID = 'T302';
+UPDATE Subjects SET Prerequisite = 'T211' WHERE SubjectID = 'T311';
+UPDATE Subjects SET Prerequisite = 'T206 or S203 (Cybersecurity)' WHERE SubjectID = 'T312';
+UPDATE Subjects SET Prerequisite = 'I202' WHERE SubjectID = 'I367';
 
+ALTER TABLE Subjects
+ADD COLUMN credits INT NOT NULL; 
+
+UPDATE Subjects
+SET credits = 15;
+UPDATE Subjects SET credits = 45 WHERE SubjectID = 'I302';
+INSERT INTO Subjects (SubjectID, SubjectName, Prerequisite, StudyYear, Sem, CourseType, EnrollmentStatus, CreditHours, Description, credits) VALUES ('I301', 'Professional Practice', '240 credits includes all level 5 & level6 compulsory papers', 3, '1', 'Major', 'Available', 105, 'To prepare students for an industry project/internship related to their area of study', 15);
 
 CREATE TABLE SubjectMajors (
     SubjectID VARCHAR(50),                       -- Foreign key linking to Subjects
@@ -109,6 +142,9 @@ INSERT INTO SubjectMajors (SubjectID, MajorID) VALUES
 ('I202', 7);
 
 INSERT INTO SubjectMajors (SubjectID, MajorID) VALUES ('D301', 1), ('D303', 1), ('I302', 1), ('D311', 2), ('I304', 2), ('I302', 2), ('D303', 3), ('I311', 3), ('I302', 3), ('I303', 4), ('I321', 4), ('I302', 4), ('D311', 5), ('T311', 5), ('I302', 5), ('T301', 6), ('T302', 6), ('I302', 6), ('T311', 7), ('T312', 7), ('I302', 7), ('I303', 8), ('I367', 8), ('I302', 8);
+
+INSERT INTO SubjectMajors (SubjectID, MajorID) VALUES
+('I301', 1),('I301', 2),('I301', 3),('I301', 4),('I301', 5),('I301', 6),('I301', 7),('I301', 8);
 
 CREATE TABLE Electives (
     subjectID VARCHAR(50) PRIMARY KEY,
