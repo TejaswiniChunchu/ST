@@ -295,7 +295,7 @@ try {
         }
        
     }
-
+    
   
     $_SESSION['Totalcredits'] = $Totalcredits;
     $_SESSION['ResultI301'] = $ResultI301;

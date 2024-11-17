@@ -56,7 +56,6 @@ if(stripos($courseId, "I302") === 0){
    
 } else {
 
-   
     $prerequisite = trim($prerequisite); // Remove leading and trailing spaces
 
     if (!empty($prerequisite)) {
@@ -80,7 +79,6 @@ if(stripos($courseId, "I302") === 0){
     else {
         $symbolDetected = "none";
     }
-    
     
     
             $prerequisiteDecoded = html_entity_decode($prerequisite);
@@ -120,7 +118,6 @@ if(stripos($courseId, "I302") === 0){
                  foreach ($enrollmentResultsArray as $record) {
                 $string .= $record['results'];
                }
-               echo "string " . $string;
                
                if(strcasecmp($symbolDetected, '&') === 0 ){
                
@@ -154,7 +151,6 @@ if(stripos($courseId, "I302") === 0){
                }else if(strcasecmp($symbolDetected, 'none') === 0 ){
                 
                 if(strcasecmp($string, 'Pass') === 0){
-                   
                     $resultsString = 'Pass';
                 }else{
                     
@@ -351,7 +347,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php 
     if (stripos($courseId, "I301") === 0 || stripos($courseId, "I309") === 0  || stripos($courseId, "I302") === 0) {
         if ( $resultsString === 'Fail') {
-            echo "You have not earned enough credits yet";
+            echo '<span style="color: red;">Before enrolling in this subject, please ensure you have earned the required credits.</span>';
+        } 
+    }else {
+        if ( $resultsString === 'Fail' || $resultsString === "") {
+            echo '<span style="color: red;">Before enrolling in this subject, please ensure you have completed the prerequisite conditions.</span>';
         } 
     }
     ?>
