@@ -404,8 +404,6 @@ try {
                         echo "<td>" . htmlspecialchars($course['results'], ENT_QUOTES, 'UTF-8') . "</td>";
                         echo "</tr>";
 
-                    }else{
-                        echo "<tr><td colspan='8'>No courses found in Enroll History.</td></tr>";
                     }
                    
                 }
