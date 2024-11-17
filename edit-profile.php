@@ -140,16 +140,36 @@ try {
             padding: 20px;
             box-sizing: border-box;
         }
-
+        .details-container {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .main-content {
+            margin-left: 250px; /* Adjust according to your sidebar width */
+            padding: 20px;
+            box-sizing: border-box;
+            flex: 1;
+        }
+        h1 {
+            color: #7869B5;
+        }
         form {
             display: flex;
             flex-direction: column;
+        }
+        
+        label {
+            font-weight: bold;
         }
 
         label, input, select {
             margin: 10px 0;
         }
-
+       
        
         .enroll-button {
             background-color: #7869B5;
@@ -178,9 +198,11 @@ try {
             <li><a href="logout.php">Logout</a></li>
         </ul>
     </div>
-    <div class="form-container">
+    <div class="main-content">
         <h1>Edit Profile</h1>
+        <div class="details-container">
         <form method="POST" action="">
+            
             <label for="username">Username:</label>
             <input type="text" name="username" value="<?php echo htmlspecialchars($user['username'], ENT_QUOTES, 'UTF-8'); ?>" required>
 
@@ -235,6 +257,7 @@ try {
 
             <input class="enroll-button" type="submit" value="Update Profile">
         </form>
+        </div>
     </div>
 </body>
 </html>
