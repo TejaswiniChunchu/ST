@@ -44,7 +44,7 @@ try {
         $email = $_POST['email'];
         $contactnumber = $_POST['contactnumber'];
         $address = $_POST['address'];
-        $password = !empty($_POST['password']) ? password_hash($_POST['password'], PASSWORD_DEFAULT) : $user['password']; // Only hash if password is provided
+        $password = !empty($_POST['password']) ? $_POST['password'] : $user['password']; // Only hash if password is provided
         $majorName1 = $_POST['major1']; // Get selected MajorName1
         $majorName2 = $_POST['major2']; // Get selected MajorName2
 
