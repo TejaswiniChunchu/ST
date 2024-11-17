@@ -216,13 +216,43 @@ CREATE TABLE Enrollments (
     FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID) ON DELETE CASCADE
 );
 
+ -- Create the admins table
+CREATE TABLE admins (
+  id VARCHAR(255) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL
+);
 
-UPDATE Enrollments
-SET Status = 'Enrolled'
-WHERE userid = 2 AND SubjectID = 'D201';
+-- Insert data into the admins table
+INSERT INTO admins (id, name, email) VALUES
+('a1', 'Navdeep Singh', 'nsingh@gmail.com');
 
+-- Create the students table
+CREATE TABLE students (
+    id INT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    major VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
+-- Insert data into the students table
+INSERT INTO students (id, name, email, major) VALUES
+(1, 'Anderson', 'janderson@gmail.com', 'Data Analytics and Intelligence'),
+(2, 'Michael Brown', 'mbrown@gmail.com', 'Data Analytics and Intelligence');
 
+-- Create the profiles table
+CREATE TABLE profiles (
+    id CHAR(2) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    contactnumber VARCHAR(10) NOT NULL,
+    address VARCHAR(255) NOT NULL
+);
 
-
-
+-- Insert data into the profiles table
+INSERT INTO profiles (id, name, email, contactnumber, address) VALUES
+('a0', 'Admin User', 'admin@example.com', '1234567890', 'Admin Street, Admin City'),
+('1', 'John Anderson', 'janderson@gmail.com', '1234567890', 'Student Street, Student City'),
+('2', 'Michael Brown', 'mbrown@gmail.com', '345678912', 'Student Street, Student City'),
+('a1', 'Navdeep Singh', 'nsingh@gmail.com', '1234567890', 'Admin Street, Admin City');
