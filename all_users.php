@@ -118,7 +118,6 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <li><a href="add_admins.php">Add Admins</a></li>
             <li><a href="all_admins.php">All Admins</a></li>
             <li><a href="all_users.php">All Users</a></li>
-            <li><a href="my_profile.php">My Profile</a></li>
             <li><a href="enrollments.php">Enrollments</a></li>
             <li><a href="logout.php">Logout</a></li>
         </ul>

@@ -7,12 +7,10 @@ $search = isset($_GET['search']) ? $_GET['search'] : '';
 
 // Fetch enrollment data based on search criteria
 $query = "SELECT * FROM Enrollments 
-          WHERE EnrollmentID LIKE :search 
-          OR userid LIKE :search 
+          WHERE userid LIKE :search 
           OR SubjectID LIKE :search 
           OR Semester LIKE :search 
-          OR Status LIKE :search 
-          OR results LIKE :search";
+          OR Status LIKE :search";
 $stmt = $conn->prepare($query);
 $stmt->execute(['search' => '%' . $search . '%']);
 $enrollments = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -39,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enrollment_id'], $_PO
     $enrollmentId = (int)$_POST['enrollment_id'];
 
     // Update the status in the database
-    $updateQuery = "UPDATE Enrollments SET Status = 'Accepted' WHERE EnrollmentID = :enrollment_id";
+    $updateQuery = "UPDATE Enrollments SET Status = 'Enrolled' WHERE EnrollmentID = :enrollment_id";
     $updateStmt = $conn->prepare($updateQuery);
     $updateStmt->bindParam(':enrollment_id', $enrollmentId, PDO::PARAM_INT);
     $updateStmt->execute();
@@ -159,21 +157,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enrollment_id'], $_PO
 <body>
 <div class="sidebar">
     <ul>
-    <li><a href="dashboard_admin.php">Dashboard</a></li>
-            <li><a href="add_students.php">Add Students</a></li>
-            <li><a href="all_students.php">All Students</a></li>
-            <li><a href="add_admins.php">Add Admins</a></li>
-            <li><a href="all_admins.php">All Admins</a></li>
-            <li><a href="all_users.php">All Users</a></li>
-            <li><a href="enrollments.php">Enrollments</a></li>
-            <li><a href="logout.php">Logout</a></li>
+        <li><a href="dashboard_admin.php">Dashboard</a></li>
+        <li><a href="add_students.php">Add Students</a></li>
+        <li><a href="all_students.php">All Students</a></li>
+        <li><a href="add_admins.php">Add Admins</a></li>
+        <li><a href="all_admins.php">All Admins</a></li>
+        <li><a href="all_users.php">All Users</a></li>
+        <li><a href="enrollments.php">Enrollments</a></li>
+        <li><a href="logout.php">Logout</a></li>
     </ul>
 </div>
 <div class="main-content">
     <h1>Enrollments</h1>
     <div class="search-bar">
         <form method="GET" action="enrollments.php">
-            <input type="text" name="search" placeholder="Search by EnrollmentID, UserID, SubjectID, Semester, Status, or Results" value="<?php echo htmlspecialchars($search); ?>">
+            <input type="text" name="search" placeholder="Search by UserID, Status, SubjectID, or Semester" value="<?php echo htmlspecialchars($search); ?>">
             <input type="submit" value="Search">
         </form>
     </div>

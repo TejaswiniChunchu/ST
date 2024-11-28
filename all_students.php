@@ -4,14 +4,23 @@ session_start();
 // Include the database connection file
 include('database/connection.php');
 
-// Fetch users data from the users table where role is 'user'
+// Initialize the search query
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+
+// Fetch students data from the users table where role is 'user' and match search criteria
 $sql = "SELECT id, username, password, role, firstname, lastname, email, contactnumber, address, MajorName1, MajorName2, StudentYear 
         FROM users 
-        WHERE role = 'user'";
+        WHERE role = 'user'
+        AND (id LIKE :search 
+        OR firstname LIKE :search 
+        OR lastname LIKE :search 
+        OR CONCAT(firstname, ' ', lastname) LIKE :search 
+        OR email LIKE :search)";
 $stmt = $conn->prepare($sql);
-$stmt->execute();
+$stmt->execute(['search' => '%' . $search . '%']);
 $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -81,6 +90,26 @@ $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
         a {
             text-decoration: none;
         }
+        .search-bar {
+            margin-bottom: 20px;
+        }
+        .search-bar input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .search-bar input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .search-bar input[type="submit"]:hover {
+            background-color: #e96852;
+        }
     </style>
 </head>
 <body>
@@ -93,13 +122,18 @@ $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <li><a href="add_admins.php">Add Admins</a></li>
             <li><a href="all_admins.php">All Admins</a></li>
             <li><a href="all_users.php">All Users</a></li>
-            <li><a href="my_profile.php">My Profile</a></li>
             <li><a href="enrollments.php">Enrollments</a></li>
             <li><a href="logout.php">Logout</a></li>
         </ul>
     </div>
     <div class="main-content">
         <h1>All Students</h1>
+        <div class="search-bar">
+            <form method="GET" action="all_students.php">
+                <input type="text" name="search" placeholder="Search by ID, name, or email" value="<?php echo htmlspecialchars($search); ?>">
+                <input type="submit" value="Search">
+            </form>
+        </div>
         <table>
             <thead>
                 <tr>
@@ -118,23 +152,24 @@ $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </tr>
             </thead>
             <tbody>
-                <?php if ($students) {
-                    foreach ($students as $student) { ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($student['id']); ?></td>
-                        <td><?php echo htmlspecialchars($student['username']); ?></td>
-                        <td><?php echo htmlspecialchars($student['password']); ?></td>
-                        <td><?php echo htmlspecialchars($student['role']); ?></td>
-                        <td><?php echo htmlspecialchars($student['firstname']); ?></td>
-                        <td><?php echo htmlspecialchars($student['lastname']); ?></td>
-                        <td><?php echo htmlspecialchars($student['email']); ?></td>
-                        <td><?php echo htmlspecialchars($student['contactnumber']); ?></td>
-                        <td><?php echo htmlspecialchars($student['address']); ?></td>
-                        <td><?php echo htmlspecialchars($student['StudentYear']); ?></td>
-                        <td><?php echo htmlspecialchars($student['MajorName1']); ?></td>
-                        <td><?php echo htmlspecialchars($student['MajorName2']); ?></td>
-                    </tr>
-                <?php } } else { ?>
+                <?php if ($students) { ?>
+                    <?php foreach ($students as $student) { ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($student['id']); ?></td>
+                            <td><?php echo htmlspecialchars($student['username']); ?></td>
+                            <td><?php echo htmlspecialchars($student['password']); ?></td>
+                            <td><?php echo htmlspecialchars($student['role']); ?></td>
+                            <td><?php echo htmlspecialchars($student['firstname']); ?></td>
+                            <td><?php echo htmlspecialchars($student['lastname']); ?></td>
+                            <td><?php echo htmlspecialchars($student['email']); ?></td>
+                            <td><?php echo htmlspecialchars($student['contactnumber']); ?></td>
+                            <td><?php echo htmlspecialchars($student['address']); ?></td>
+                            <td><?php echo htmlspecialchars($student['StudentYear']); ?></td>
+                            <td><?php echo htmlspecialchars($student['MajorName1']); ?></td>
+                            <td><?php echo htmlspecialchars($student['MajorName2']); ?></td>
+                        </tr>
+                    <?php } ?>
+                <?php } else { ?>
                     <tr><td colspan="12">No students found.</td></tr>
                 <?php } ?>
             </tbody>
