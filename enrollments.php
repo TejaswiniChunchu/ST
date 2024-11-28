@@ -2,17 +2,10 @@
 include('database/connection.php');
 session_start();
 
-// Initialize the search query
-$search = isset($_GET['search']) ? $_GET['search'] : '';
-
-// Fetch enrollment data based on search criteria
-$query = "SELECT * FROM Enrollments 
-          WHERE userid LIKE :search 
-          OR SubjectID LIKE :search 
-          OR Semester LIKE :search 
-          OR Status LIKE :search";
+// Fetch enrollment data without search criteria
+$query = "SELECT * FROM Enrollments";
 $stmt = $conn->prepare($query);
-$stmt->execute(['search' => '%' . $search . '%']);
+$stmt->execute();
 $enrollments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Handle the form submission for updating result
@@ -43,21 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enrollment_id'], $_PO
     $updateStmt->execute();
 
     // Refresh the current page
-    header('Location: ' . $_SERVER['REQUEST_URI']);
-    exit();
-}
-
-// Handle the form submission for declining
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enrollment_id'], $_POST['decline'])) {
-    $enrollmentId = (int)$_POST['enrollment_id'];
-
-    // Delete the enrollment from the database
-    $deleteQuery = "DELETE FROM Enrollments WHERE EnrollmentID = :enrollment_id";
-    $deleteStmt = $conn->prepare($deleteQuery);
-    $deleteStmt->bindParam(':enrollment_id', $enrollmentId, PDO::PARAM_INT);
-    $deleteStmt->execute();
-
-    // Redirect to avoid form resubmission
     header('Location: ' . $_SERVER['REQUEST_URI']);
     exit();
 }
@@ -132,26 +110,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enrollment_id'], $_PO
         a {
             text-decoration: none;
         }
-        .search-bar {
-            margin-bottom: 20px;
-        }
-        .search-bar input[type="text"] {
-            padding: 10px;
-            width: 300px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .search-bar input[type="submit"] {
-            padding: 10px 20px;
-            background-color: #2c3e50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .search-bar input[type="submit"]:hover {
-            background-color: #e96852;
-        }
     </style>
 </head>
 <body>
@@ -169,12 +127,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enrollment_id'], $_PO
 </div>
 <div class="main-content">
     <h1>Enrollments</h1>
-    <div class="search-bar">
-        <form method="GET" action="enrollments.php">
-            <input type="text" name="search" placeholder="Search by UserID, Status, SubjectID, or Semester" value="<?php echo htmlspecialchars($search); ?>">
-            <input type="submit" value="Search">
-        </form>
-    </div>
     <table>
         <thead>
             <tr>
@@ -206,10 +158,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enrollment_id'], $_PO
                         <form method="post" action="enrollments.php" style="display:inline;">
                             <input type="hidden" name="enrollment_id" value="<?php echo htmlspecialchars($enrollment['EnrollmentID'], ENT_QUOTES, 'UTF-8'); ?>">
                             <button type="submit" name="accept">Accept</button>
-                        </form>
-                        <form method="post" action="enrollments.php" style="display:inline;">
-                            <input type="hidden" name="enrollment_id" value="<?php echo htmlspecialchars($enrollment['EnrollmentID'], ENT_QUOTES, 'UTF-8'); ?>">
-                            <button type="submit" name="decline">Decline</button>
                         </form>
                     </td>
                 </tr>
