@@ -16,27 +16,18 @@ if (!$isAdmin) {
     exit();
 }
 
-// Fetch total number of students
-$sql_total_students = "SELECT COUNT(*) AS total_students FROM students";
-$stmt_total_students = $conn->prepare($sql_total_students);
-$stmt_total_students->execute();
-$total_students = $stmt_total_students->fetch(PDO::FETCH_ASSOC)['total_students'];
-
-// Fetch number of new students (assuming new students are those added in the last 30 days)
-$sql_new_students = "SELECT COUNT(*) AS new_students FROM students WHERE DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
-$stmt_new_students = $conn->prepare($sql_new_students);
-$stmt_new_students->execute();
-$new_students = $stmt_new_students->fetch(PDO::FETCH_ASSOC)['new_students'];
-
-// Fetch total number of admins
-$sql_total_admins = "SELECT COUNT(*) AS total_admins FROM admins";
-$stmt_total_admins = $conn->prepare($sql_total_admins);
-$stmt_total_admins->execute();
-$total_admins = $stmt_total_admins->fetch(PDO::FETCH_ASSOC)['total_admins'];
-
-// Calculate total users (students + admins)
-$total_users = $total_students + $total_admins;
-
+// Fetch total number of pending requests
+$total_requests = 0;
+if ($conn) {
+    $sql_pending_requests = "SELECT COUNT(*) AS total_requests FROM Enrollments WHERE Status = 'waiting'";
+    $stmt_pending_requests = $conn->prepare($sql_pending_requests);
+    if ($stmt_pending_requests->execute()) {
+        $result = $stmt_pending_requests->fetch(PDO::FETCH_ASSOC);
+        if ($result) {
+            $total_requests = $result['total_requests'];
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -48,26 +39,51 @@ $total_users = $total_students + $total_admins;
     <link rel="stylesheet" href="css/sidebar.css"> <!-- Adjust path if necessary -->
     <!-- Additional styles specific to the admin dashboard -->
     <style>
-        /* ... (Your existing styles) ... */
-
-        /* Additional styles for the admin dashboard */
-        <?php if ($isAdmin): ?>
-            body {
-                background-color: #f9f9f9; /* Light gray background for admin */
-            }
-            .sidebar {
-                background-color: #2c3e50; /* Darker sidebar color for admin */
-                color: white;
-            }
-            /* Add more admin-specific styles as needed */
-        <?php endif; ?>
-
-        /* Styles for the cards */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9; /* Light gray background for admin */
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50; /* Darker sidebar color for admin */
+            color: white;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            margin: 20px 0;
+        }
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            display: block;
+            padding: 10px;
+        }
+        .sidebar ul li a:hover {
+            background-color: #e96852;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            box-sizing: border-box;
+            flex-grow: 1;
+        }
         .stats {
             display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            margin-top: 20px;
+            justify-content: flex-start; /* Align items to the start */
+            margin-top: 10px; /* Reduce the top margin to bring it closer to the heading */
         }
         .stat-box {
             background-color: #fff;
@@ -76,7 +92,7 @@ $total_users = $total_students + $total_admins;
             padding: 20px;
             text-align: center;
             width: 200px;
-            margin: 10px;
+            margin-left: 0; /* Align with the heading */
         }
         .stat-box h2 {
             font-size: 1.5em;
@@ -86,22 +102,8 @@ $total_users = $total_students + $total_admins;
             font-size: 2em;
             color: #2c3e50;
         }
-
-        /* Colors for each card */
         .stat-box:nth-child(1) {
-            background-color: #3498db; /* Blue for Total Students */
-            color: white;
-        }
-        .stat-box:nth-child(2) {
-            background-color: #2ecc71; /* Green for New Students */
-            color: white;
-        }
-        .stat-box:nth-child(3) {
-            background-color: #e74c3c; /* Red for Total Admins */
-            color: white;
-        }
-        .stat-box:nth-child(4) {
-            background-color: #f1c40f; /* Yellow for Total Users */
+            background-color: #3498db; /* Blue for Pending Requests */
             color: white;
         }
     </style>
@@ -115,8 +117,9 @@ $total_users = $total_students + $total_admins;
             <li><a href="all_students.php">All Students</a></li>
             <li><a href="add_admins.php">Add Admins</a></li>
             <li><a href="all_admins.php">All Admins</a></li>
+            <li><a href="all_users.php">All Users</a></li>
             <li><a href="my_profile.php">My Profile</a></li>
-            <li><a href="other_profiles.php">Other Profiles</a></li>
+            <li><a href="enrollments.php">Enrollments</a></li>
             <li><a href="logout.php">Logout</a></li>
         </ul>
     </div>
@@ -125,20 +128,8 @@ $total_users = $total_students + $total_admins;
         <h1>Dashboard Statistics Overview</h1>
         <div class="stats">
             <div class="stat-box">
-                <h2>Total Students</h2>
-                <p><?php echo $total_students; ?></p>
-            </div>
-            <div class="stat-box">
-                <h2>New Students</h2>
-                <p><?php echo $new_students; ?></p>
-            </div>
-            <div class="stat-box">
-                <h2>Total Admins</h2>
-                <p><?php echo $total_admins; ?></p>
-            </div>
-            <div class="stat-box">
-                <h2>Total Users</h2>
-                <p><?php echo $total_users; ?></p>
+                <h2>Total Requests</h2>
+                <p><?php echo htmlspecialchars($total_requests); ?></p>
             </div>
         </div>
     </div>
