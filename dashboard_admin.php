@@ -16,27 +16,28 @@ if (!$isAdmin) {
     exit();
 }
 
-// Fetch total number of students
-$sql_total_students = "SELECT COUNT(*) AS total_students FROM students";
-$stmt_total_students = $conn->prepare($sql_total_students);
-$stmt_total_students->execute();
-$total_students = $stmt_total_students->fetch(PDO::FETCH_ASSOC)['total_students'];
+// Fetch total number of pending requests
+$total_requests = 0;
+if ($conn) {
+    $sql_pending_requests = "SELECT COUNT(*) AS total_requests FROM Enrollments WHERE Status = 'waiting'";
+    $stmt_pending_requests = $conn->prepare($sql_pending_requests);
+    if ($stmt_pending_requests->execute()) {
+        $result = $stmt_pending_requests->fetch(PDO::FETCH_ASSOC);
+        if ($result) {
+            $total_requests = $result['total_requests'];
+        }
+    }
+}
 
-// Fetch number of new students (assuming new students are those added in the last 30 days)
-$sql_new_students = "SELECT COUNT(*) AS new_students FROM students WHERE DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
-$stmt_new_students = $conn->prepare($sql_new_students);
-$stmt_new_students->execute();
-$new_students = $stmt_new_students->fetch(PDO::FETCH_ASSOC)['new_students'];
-
-// Fetch total number of admins
-$sql_total_admins = "SELECT COUNT(*) AS total_admins FROM admins";
-$stmt_total_admins = $conn->prepare($sql_total_admins);
-$stmt_total_admins->execute();
-$total_admins = $stmt_total_admins->fetch(PDO::FETCH_ASSOC)['total_admins'];
-
-// Calculate total users (students + admins)
-$total_users = $total_students + $total_admins;
-
+// Fetch enrollments with status 'waiting'
+$enrollments = [];
+if ($conn) {
+    $sql_enrollments = "SELECT * FROM Enrollments WHERE Status = 'waiting'";
+    $stmt_enrollments = $conn->prepare($sql_enrollments);
+    if ($stmt_enrollments->execute()) {
+        $enrollments = $stmt_enrollments->fetchAll(PDO::FETCH_ASSOC);
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -48,26 +49,51 @@ $total_users = $total_students + $total_admins;
     <link rel="stylesheet" href="css/sidebar.css"> <!-- Adjust path if necessary -->
     <!-- Additional styles specific to the admin dashboard -->
     <style>
-        /* ... (Your existing styles) ... */
-
-        /* Additional styles for the admin dashboard */
-        <?php if ($isAdmin): ?>
-            body {
-                background-color: #f9f9f9; /* Light gray background for admin */
-            }
-            .sidebar {
-                background-color: #2c3e50; /* Darker sidebar color for admin */
-                color: white;
-            }
-            /* Add more admin-specific styles as needed */
-        <?php endif; ?>
-
-        /* Styles for the cards */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9; /* Light gray background for admin */
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50; /* Darker sidebar color for admin */
+            color: white;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            margin: 20px 0;
+        }
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            display: block;
+            padding: 10px;
+        }
+        .sidebar ul li a:hover {
+            background-color: #e96852;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            box-sizing: border-box;
+            flex-grow: 1;
+        }
         .stats {
             display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            margin-top: 20px;
+            justify-content: flex-start; /* Align items to the start */
+            margin-top: 10px; /* Reduce the top margin to bring it closer to the heading */
         }
         .stat-box {
             background-color: #fff;
@@ -76,7 +102,8 @@ $total_users = $total_students + $total_admins;
             padding: 20px;
             text-align: center;
             width: 200px;
-            margin: 10px;
+            margin-left: 0; /* Align with the heading */
+            cursor: pointer; /* Make the box clickable */
         }
         .stat-box h2 {
             font-size: 1.5em;
@@ -86,25 +113,39 @@ $total_users = $total_students + $total_admins;
             font-size: 2em;
             color: #2c3e50;
         }
-
-        /* Colors for each card */
         .stat-box:nth-child(1) {
-            background-color: #3498db; /* Blue for Total Students */
+            background-color: #3498db; /* Blue for Pending Requests */
             color: white;
         }
-        .stat-box:nth-child(2) {
-            background-color: #2ecc71; /* Green for New Students */
+        .enrollments-table {
+            display: none; /* Hide the table initially */
+            margin-top: 20px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .enrollments-table th, .enrollments-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .enrollments-table th {
+            background-color: #2c3e50;
             color: white;
         }
-        .stat-box:nth-child(3) {
-            background-color: #e74c3c; /* Red for Total Admins */
-            color: white;
-        }
-        .stat-box:nth-child(4) {
-            background-color: #f1c40f; /* Yellow for Total Users */
-            color: white;
+        .enrollments-table tr:nth-child(even) {
+            background-color: #f2f2f2;
         }
     </style>
+    <script>
+        function toggleEnrollmentsTable() {
+            var table = document.getElementById('enrollmentsTable');
+            if (table.style.display === 'none' || table.style.display === '') {
+                table.style.display = 'table';
+            } else {
+                table.style.display = 'none';
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="sidebar">
@@ -115,8 +156,8 @@ $total_users = $total_students + $total_admins;
             <li><a href="all_students.php">All Students</a></li>
             <li><a href="add_admins.php">Add Admins</a></li>
             <li><a href="all_admins.php">All Admins</a></li>
-            <li><a href="my_profile.php">My Profile</a></li>
-            <li><a href="other_profiles.php">Other Profiles</a></li>
+            <li><a href="all_users.php">All Users</a></li>
+            <li><a href="enrollments.php">Enrollments</a></li>
             <li><a href="logout.php">Logout</a></li>
         </ul>
     </div>
@@ -124,23 +165,45 @@ $total_users = $total_students + $total_admins;
     <div class="main-content">
         <h1>Dashboard Statistics Overview</h1>
         <div class="stats">
-            <div class="stat-box">
-                <h2>Total Students</h2>
-                <p><?php echo $total_students; ?></p>
-            </div>
-            <div class="stat-box">
-                <h2>New Students</h2>
-                <p><?php echo $new_students; ?></p>
-            </div>
-            <div class="stat-box">
-                <h2>Total Admins</h2>
-                <p><?php echo $total_admins; ?></p>
-            </div>
-            <div class="stat-box">
-                <h2>Total Users</h2>
-                <p><?php echo $total_users; ?></p>
+            <div class="stat-box" onclick="toggleEnrollmentsTable()">
+                <h2>Total Requests</h2>
+                <p><?php echo htmlspecialchars($total_requests); ?></p>
             </div>
         </div>
+
+        <table id="enrollmentsTable" class="enrollments-table">
+            <thead>
+                <tr>
+                    <th>EnrollmentID</th>
+                    <th>User ID</th>
+                    <th>Subject ID</th>
+                    <th>Semester</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($enrollments as $enrollment): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($enrollment['EnrollmentID'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td><?php echo htmlspecialchars($enrollment['userid'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td><?php echo htmlspecialchars($enrollment['SubjectID'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td><?php echo htmlspecialchars($enrollment['Semester'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td><?php echo htmlspecialchars($enrollment['Status'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td>
+                            <form method="post" action="enrollments.php" style="display:inline;">
+                                <input type="hidden" name="enrollment_id" value="<?php echo htmlspecialchars($enrollment['EnrollmentID'], ENT_QUOTES, 'UTF-8'); ?>">
+                                <button type="submit" name="accept">Accept</button>
+                            </form>
+                            <form method="post" action="enrollments.php" style="display:inline;">
+                                <input type="hidden" name="enrollment_id" value="<?php echo htmlspecialchars($enrollment['EnrollmentID'], ENT_QUOTES, 'UTF-8'); ?>">
+                                <button type="submit" name="decline">Decline</button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
 </body>
 </html>
