@@ -2,14 +2,13 @@
 // Include the database connection file
 include('database/connection.php');
 
-// Initialize the search query
-$search = isset($_GET['search']) ? $_GET['search'] : '';
-
-// Fetch admin data from the database based on the search query
-$sql = "SELECT id, name, email FROM admins WHERE name LIKE :search";
+// Fetch all admin data from the users table
+$sql = "SELECT id, username, password, role, firstname, lastname, email, contactnumber, address 
+        FROM users 
+        WHERE role = 'admin'";
 $stmt = $conn->prepare($sql);
-$stmt->execute(['search' => '%' . $search . '%']);
-$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt->execute();
+$admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -80,68 +79,55 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         a {
             text-decoration: none;
         }
-        .search-bar {
-            margin-bottom: 20px;
-        }
-        .search-bar input[type="text"] {
-            padding: 10px;
-            width: 300px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .search-bar input[type="submit"] {
-            padding: 10px 20px;
-            background-color: #2c3e50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .search-bar input[type="submit"]:hover {
-            background-color: #e96852;
-        }
     </style>
 </head>
 <body>
     <div class="sidebar">
+        <!-- Sidebar content -->
         <ul>
-            <li><a href="dashboard_admin.php">Dashboard</a></li>
+        <li><a href="dashboard_admin.php">Dashboard</a></li>
             <li><a href="add_students.php">Add Students</a></li>
             <li><a href="all_students.php">All Students</a></li>
             <li><a href="add_admins.php">Add Admins</a></li>
             <li><a href="all_admins.php">All Admins</a></li>
+            <li><a href="all_users.php">All Users</a></li>
             <li><a href="my_profile.php">My Profile</a></li>
-            <li><a href="other_profiles.php">Other Profiles</a></li>
+            <li><a href="enrollments.php">Enrollments</a></li>
             <li><a href="logout.php">Logout</a></li>
         </ul>
     </div>
     <div class="main-content">
         <h1>All Admins</h1>
-        <div class="search-bar">
-            <form method="GET" action="all_admins.php">
-                <input type="text" name="search" placeholder="Search by name" value="<?php echo htmlspecialchars($search); ?>">
-                <input type="submit" value="Search">
-            </form>
-        </div>
         <table>
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Role</th>
+                    <th>Firstname</th>
+                    <th>Lastname</th>
                     <th>Email</th>
+                    <th>Contact Number</th>
+                    <th>Address</th>
                 </tr>
             </thead>
             <tbody>
-                <?php if ($result) { ?>
-                    <?php foreach ($result as $row) { ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($row['id']); ?></td>
-                            <td><?php echo htmlspecialchars($row['name']); ?></td>
-                            <td><?php echo htmlspecialchars($row['email']); ?></td>
-                        </tr>
-                    <?php } ?>
-                <?php } else { ?>
-                    <tr><td colspan="3">No admins found.</td></tr>
+                <?php if ($admins) {
+                    foreach ($admins as $admin) { ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($admin['id']); ?></td>
+                        <td><?php echo htmlspecialchars($admin['username']); ?></td>
+                        <td><?php echo htmlspecialchars($admin['password']); ?></td>
+                        <td><?php echo htmlspecialchars($admin['role']); ?></td>
+                        <td><?php echo htmlspecialchars($admin['firstname']); ?></td>
+                        <td><?php echo htmlspecialchars($admin['lastname']); ?></td>
+                        <td><?php echo htmlspecialchars($admin['email']); ?></td>
+                        <td><?php echo htmlspecialchars($admin['contactnumber']); ?></td>
+                        <td><?php echo htmlspecialchars($admin['address']); ?></td>
+                    </tr>
+                <?php } } else { ?>
+                    <tr><td colspan="9">No admins found.</td></tr>
                 <?php } ?>
             </tbody>
         </table>

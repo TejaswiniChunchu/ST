@@ -13,15 +13,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enrollment_id'], $_PO
     $enrollmentId = (int)$_POST['enrollment_id'];
     $result = $_POST['result'];
 
-    // Update the result in the database
-    $updateQuery = "UPDATE Enrollments SET results = :result WHERE EnrollmentID = :enrollment_id";
+    // Update the result and status in the database
+    $updateQuery = "UPDATE Enrollments SET results = :result, Status = 'Accepted' WHERE EnrollmentID = :enrollment_id";
     $updateStmt = $conn->prepare($updateQuery);
     $updateStmt->bindParam(':result', $result, PDO::PARAM_STR);
     $updateStmt->bindParam(':enrollment_id', $enrollmentId, PDO::PARAM_INT);
     $updateStmt->execute();
 
-    // Redirect to avoid form resubmission
-    header('Location: enrollments.php');
+    // Refresh the current page
+    header('Location: ' . $_SERVER['REQUEST_URI']);
     exit();
 }
 
@@ -36,11 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enrollment_id'], $_PO
     $deleteStmt->execute();
 
     // Redirect to avoid form resubmission
-    header('Location: enrollments.php');
+    header('Location: ' . $_SERVER['REQUEST_URI']);
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -110,55 +109,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enrollment_id'], $_PO
 </head>
 <body>
 <div class="sidebar">
-        <!-- Sidebar content -->
-        <ul>
+    <ul>
         <li><a href="dashboard_admin.php">Dashboard</a></li>
-            <li><a href="add_students.php">Add Students</a></li>
-            <li><a href="all_students.php">All Students</a></li>
-            <li><a href="all_users.php">All Users</a></li>
-            <li><a href="my_profile.php">My Profile</a></li>
-            <li><a href="enrollments.php">Enrollments</a></li>
-            <li><a href="logout.php">Logout</a></li>
-    </div>
-    <div class="main-content">
-        <h1>Enrollments</h1>
-        <table>
-            <thead>
+        <li><a href="add_students.php">Add Students</a></li>
+        <li><a href="all_students.php">All Students</a></li>
+        <li><a href="add_admins.php">Add Admins</a></li>
+        <li><a href="all_admins.php">All Admins</a></li>
+        <li><a href="all_users.php">All Users</a></li>
+        <li><a href="my_profile.php">My Profile</a></li>
+        <li><a href="enrollments.php">Enrollments</a></li>
+        <li><a href="logout.php">Logout</a></li>
+    </ul>
+</div>
+<div class="main-content">
+    <h1>Enrollments</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>EnrollmentID</th>
+                <th>User ID</th>
+                <th>Subject ID</th>
+                <th>Semester</th>
+                <th>Status</th>
+                <th>Results</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($enrollments as $enrollment): ?>
                 <tr>
-                    <th>EnrollmentID</th>
-                    <th>User ID</th>
-                    <th>Subject ID</th>
-                    <th>Semester</th>
-                    <th>Status</th>
-                    <th>Results</th>
-                    <th>Actions</th>
+                    <td><?php echo htmlspecialchars($enrollment['EnrollmentID'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($enrollment['userid'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($enrollment['SubjectID'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($enrollment['Semester'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($enrollment['Status'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td>
+                        <form method="post" action="enrollments.php">
+                            <input type="text" name="result" value="<?php echo htmlspecialchars($enrollment['results'], ENT_QUOTES, 'UTF-8'); ?>">
+                    </td>
+                    <td>
+                            <input type="hidden" name="enrollment_id" value="<?php echo htmlspecialchars($enrollment['EnrollmentID'], ENT_QUOTES, 'UTF-8'); ?>">
+                            <button type="submit" name="accept">Accept</button>
+                        </form>
+                        <form method="post" action="enrollments.php" style="display:inline;">
+                            <input type="hidden" name="enrollment_id" value="<?php echo htmlspecialchars($enrollment['EnrollmentID'], ENT_QUOTES, 'UTF-8'); ?>">
+                            <button type="submit" name="decline">Decline</button>
+                        </form>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($enrollments as $enrollment): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($enrollment['EnrollmentID'], ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td><?php echo htmlspecialchars($enrollment['userid'], ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td><?php echo htmlspecialchars($enrollment['SubjectID'], ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td><?php echo htmlspecialchars($enrollment['Semester'], ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td><?php echo htmlspecialchars($enrollment['Status'], ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td>
-                            <form method="post" action="enrollments.php">
-                                <input type="text" name="result" value="<?php echo htmlspecialchars($enrollment['results'], ENT_QUOTES, 'UTF-8'); ?>">
-                        </td>
-                        <td>
-                                <input type="hidden" name="enrollment_id" value="<?php echo htmlspecialchars($enrollment['EnrollmentID'], ENT_QUOTES, 'UTF-8'); ?>">
-                                <button type="submit" name="accept">Accept</button>
-                            </form>
-                            <form method="post" action="enrollments.php" style="display:inline;">
-                                <input type="hidden" name="enrollment_id" value="<?php echo htmlspecialchars($enrollment['EnrollmentID'], ENT_QUOTES, 'UTF-8'); ?>">
-                                <button type="submit" name="decline">Decline</button>
-                            </form>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
 </body>
 </html>
