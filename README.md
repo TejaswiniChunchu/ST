@@ -256,3 +256,9 @@ INSERT INTO profiles (id, name, email, contactnumber, address) VALUES
 ('1', 'John Anderson', 'janderson@gmail.com', '1234567890', 'Student Street, Student City'),
 ('2', 'Michael Brown', 'mbrown@gmail.com', '345678912', 'Student Street, Student City'),
 ('a1', 'Navdeep Singh', 'nsingh@gmail.com', '1234567890', 'Admin Street, Admin City');
+
+-- Insert enrollments for all users into all year 1 subjects
+INSERT INTO Enrollment (UserID, SubjectID, EnrollmentDate)
+SELECT u.UserID, s.SubjectID, CURDATE()
+FROM Users u
+JOIN Subjects s ON s.StudyYear = 1;
