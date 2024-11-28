@@ -264,3 +264,4 @@ FROM Users u
 JOIN Subjects s ON s.StudyYear = 1;
 
 
+
