@@ -257,11 +257,12 @@ INSERT INTO profiles (id, name, email, contactnumber, address) VALUES
 ('2', 'Michael Brown', 'mbrown@gmail.com', '345678912', 'Student Street, Student City'),
 ('a1', 'Navdeep Singh', 'nsingh@gmail.com', '1234567890', 'Admin Street, Admin City');
 
--- Insert enrollments for all users into all year 1 subjects
-INSERT INTO enrollments (UserID, SubjectID)
-SELECT u.id, s.SubjectID
+-- Insert enrollments for all users into all year 1 subjects with status 'enrolled'
+INSERT INTO enrollments (UserID, SubjectID, Status)
+SELECT u.id, s.SubjectID, 'enrolled'
 FROM Users u
 JOIN Subjects s ON s.StudyYear = 1;
+
 
 
 
