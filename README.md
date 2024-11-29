@@ -260,7 +260,9 @@ INSERT INTO Enrollments (userid, SubjectID, Semester, Status, results)
 SELECT u.id, s.SubjectID, 1, 'Enrolled', NULL
 FROM Users u
 CROSS JOIN Subjects s
-WHERE s.StudyYear = 1;
+WHERE s.StudyYear = 1
+AND u.role != 'admin';
+
 
 
 
