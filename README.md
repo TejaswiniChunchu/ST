@@ -256,11 +256,12 @@ INSERT INTO profiles (id, name, email, contactnumber, address) VALUES
 ('2', 'Michael Brown', 'mbrown@gmail.com', '345678912', 'Student Street, Student City'),
 ('a1', 'Navdeep Singh', 'nsingh@gmail.com', '1234567890', 'Admin Street, Admin City');
 
--- Update status to 'Enrolled' in the enrollments table for year 1 subjects
-UPDATE enrollments e
-JOIN Subjects s ON e.SubjectID = s.SubjectID
-SET e.Status = 'Enrolled'
+INSERT INTO Enrollments (userid, SubjectID, Semester, Status, results)
+SELECT u.id, s.SubjectID, 1, 'Enrolled', NULL
+FROM Users u
+CROSS JOIN Subjects s
 WHERE s.StudyYear = 1;
+
 
 
 
