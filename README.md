@@ -199,9 +199,8 @@ CREATE TABLE users (
 
 
 
-INSERT INTO users (username, password, role, firstname, lastname, email, contactnumber, address, MajorName1, MajorName2, StudentYear) VALUES 
-('teja', 'teja123', 'user', 'Teja', 'Chunchu', 'teja.chunchu577@gmail.com', '225066554', '3 Papawai Place, Milson, Palmerston North', NULL, NULL, 2), 
-('admin', 'admin', 'admin', 'Admin', 'User', 'admin@example.com', '1234567890', '1 Admin Street, Admin City', NULL , NULL, 2);
+INSERT INTO users (username, password, role, firstname, lastname, email, contactnumber, address, MajorName1, MajorName2, StudentYear) VALUES ('teja', 'teja', 'user', 'Teja', 'Chunchu', 'teja.chunchu577@gmail.com', '225066554', '3 Papawai Place, Milson, Palmerston North', NULL, NULL, 2), ('admin', 'admin', 'admin', 'Admin', 'User', 'admin@example.com', '1234567890', '1 Admin Street, Admin City', NULL , NULL, NULL);
+
 
 INSERT INTO Users (username, password, role, firstname, lastname, email, contactnumber, address, MajorName1, MajorName2, StudentYear) VALUES ('john', 'password1', 'user', 'John', 'Doe', 'john.doe@example.com', '9876543210', '22 Baker Street, London', NULL, NULL, 2), ('jane', 'password2', 'user', 'Jane', 'Doe', 'jane.doe@example.com', '1122334455', '10 Maple Avenue, Springfield', NULL, NULL, 2), ('mike', 'password3', 'user', 'Mike', 'Smith', 'mike.smith@example.com', '5544332211', '15 Pine Road, New York', NULL, NULL, 2), ('linda', 'password4', 'user', 'Linda', 'Brown', 'linda.brown@example.com', '9988776655', '7 Oak Street, Chicago', NULL, NULL, 3);
 
