@@ -1,15 +1,26 @@
 <?php
+session_start();
+
 // Include the database connection file
 include('database/connection.php');
 
-// Fetch all admin data from the users table
+// Initialize the search query
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+
+// Fetch admins data from the users table where role is 'admin' and match search criteria
 $sql = "SELECT id, username, password, role, firstname, lastname, email, contactnumber, address 
         FROM users 
-        WHERE role = 'admin'";
+        WHERE role = 'admin'
+        AND (id LIKE :search 
+        OR firstname LIKE :search 
+        OR lastname LIKE :search 
+        OR CONCAT(firstname, ' ', lastname) LIKE :search 
+        OR email LIKE :search)";
 $stmt = $conn->prepare($sql);
-$stmt->execute();
+$stmt->execute(['search' => '%' . $search . '%']);
 $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -79,6 +90,26 @@ $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
         a {
             text-decoration: none;
         }
+        .search-bar {
+            margin-bottom: 20px;
+        }
+        .search-bar input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .search-bar input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .search-bar input[type="submit"]:hover {
+            background-color: #e96852;
+        }
     </style>
 </head>
 <body>
@@ -91,13 +122,18 @@ $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <li><a href="add_admins.php">Add Admins</a></li>
             <li><a href="all_admins.php">All Admins</a></li>
             <li><a href="all_users.php">All Users</a></li>
-            <li><a href="my_profile.php">My Profile</a></li>
             <li><a href="enrollments.php">Enrollments</a></li>
             <li><a href="logout.php">Logout</a></li>
         </ul>
     </div>
     <div class="main-content">
         <h1>All Admins</h1>
+        <div class="search-bar">
+            <form method="GET" action="all_admins.php">
+                <input type="text" name="search" placeholder="Search by ID, name, or email" value="<?php echo htmlspecialchars($search); ?>">
+                <input type="submit" value="Search">
+            </form>
+        </div>
         <table>
             <thead>
                 <tr>
