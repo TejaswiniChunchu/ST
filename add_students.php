@@ -6,43 +6,47 @@ include('database/connection.php');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Get the form data
-    $student_id = $_POST['student_id'];
-    $username = $_POST['username'];
-    $password = $_POST['password']; // Save password as plain text
-    $role = $_POST['role'];
-    $firstname = $_POST['firstname'];
-    $lastname = $_POST['lastname'];
-    $email = $_POST['email'];
-    $contactnumber = $_POST['contactnumber'];
-    $address = $_POST['address'];
-    $StudentYear = $_POST['StudentYear'];
+    $username = isset($_POST['username']) ? trim($_POST['username']) : '';
+    $password = isset($_POST['password']) ? trim($_POST['password']) : '';
+    $role = isset($_POST['role']) ? trim($_POST['role']) : '';
+    $firstname = isset($_POST['firstname']) ? trim($_POST['firstname']) : '';
+    $lastname = isset($_POST['lastname']) ? trim($_POST['lastname']) : '';
+    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+    $contactnumber = isset($_POST['contactnumber']) ? trim($_POST['contactnumber']) : '';
+    $address = isset($_POST['address']) ? trim($_POST['address']) : '';
+    $StudentYear = isset($_POST['StudentYear']) ? trim($_POST['StudentYear']) : '';
 
-    // Insert the new student into the users table in the database
-    $sql = "INSERT INTO users (id, username, password, role, firstname, lastname, email, contactnumber, address, StudentYear) 
-            VALUES (:id, :username, :password, :role, :firstname, :lastname, :email, :contactnumber, :address, :StudentYear)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bindParam(':id', $student_id);
-    $stmt->bindParam(':username', $username);
-    $stmt->bindParam(':password', $password); // Save password as plain text
-    $stmt->bindParam(':role', $role);
-    $stmt->bindParam(':firstname', $firstname);
-    $stmt->bindParam(':lastname', $lastname);
-    $stmt->bindParam(':email', $email);
-    $stmt->bindParam(':contactnumber', $contactnumber);
-    $stmt->bindParam(':address', $address);
-    $stmt->bindParam(':StudentYear', $StudentYear);
+    // Validate required fields
+    if ($username && $password && $role && $firstname && $lastname && $email && $contactnumber && $address && $StudentYear) {
+        // Insert the new student into the users table in the database
+        $sql = "INSERT INTO users (username, password, role, firstname, lastname, email, contactnumber, address, StudentYear) 
+                VALUES (:username, :password, :role, :firstname, :lastname, :email, :contactnumber, :address, :StudentYear)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(':username', $username);
+        $stmt->bindParam(':password', $password); // Save password as plain text
+        $stmt->bindParam(':role', $role);
+        $stmt->bindParam(':firstname', $firstname);
+        $stmt->bindParam(':lastname', $lastname);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':contactnumber', $contactnumber);
+        $stmt->bindParam(':address', $address);
+        $stmt->bindParam(':StudentYear', $StudentYear);
 
-    // Execute the statement
-    if ($stmt->execute()) {
-        // Redirect to the all_students.php to avoid resubmission
-        header("Location: all_students.php");
-        exit();
+        // Execute the statement
+        if ($stmt->execute()) {
+            // Redirect to the all_students.php to avoid resubmission
+            header("Location: all_students.php");
+            exit();
+        } else {
+            // Handle errors
+            echo "Error adding student. Please try again.";
+        }
     } else {
-        // Handle errors
-        echo "Error adding student. Please try again.";
+        echo "All fields are required.";
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -129,13 +133,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="sidebar">
         <!-- Sidebar content -->
         <ul>
-        <li><a href="dashboard_admin.php">Dashboard</a></li>
+            <li><a href="dashboard_admin.php">Dashboard</a></li>
             <li><a href="add_students.php">Add Students</a></li>
-            <li><a href="all_students.php">All Students</a></li>
             <li><a href="add_admins.php">Add Admins</a></li>
-            <li><a href="all_admins.php">All Admins</a></li>
             <li><a href="all_users.php">All Users</a></li>
-            <li><a href="my_profile.php">My Profile</a></li>
             <li><a href="enrollments.php">Enrollments</a></li>
             <li><a href="logout.php">Logout</a></li>
         </ul>
@@ -145,9 +146,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="form-container">
             <h2>Add Students</h2>
             <form action="add_students.php" method="post">
-                <label for="student_id">ID:</label>
-                <input type="text" id="student_id" name="student_id" required>
-
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" required>
 

@@ -1,20 +1,6 @@
 <?php
-// Enable error reporting for development (disable or adjust in production)
-error_reporting(E_ALL);
-ini_set('display_errors', 0); // Disable display of errors to users
-
-// Include the database connection file
 include('database/connection.php');
-session_start(); // Start the session if not already started
-
-// Check if the user is logged in as an admin (you can adjust this condition based on your actual admin check)
-$isAdmin = isset($_SESSION['UserRole']) && $_SESSION['UserRole'] === 'admin';
-
-// Redirect non-admin users
-if (!$isAdmin) {
-    header("Location: dashboard.php"); // Redirect to user dashboard or login page
-    exit();
-}
+session_start();
 
 // Fetch total number of pending requests
 $total_requests = 0;
@@ -38,6 +24,38 @@ if ($conn) {
         $enrollments = $stmt_enrollments->fetchAll(PDO::FETCH_ASSOC);
     }
 }
+
+// Handle the form submission for updating result
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enrollment_id'], $_POST['result'], $_POST['submit'])) {
+    $enrollmentId = (int)$_POST['enrollment_id'];
+    $result = $_POST['result'];
+
+    // Update the result in the database
+    $updateQuery = "UPDATE Enrollments SET results = :result WHERE EnrollmentID = :enrollment_id";
+    $updateStmt = $conn->prepare($updateQuery);
+    $updateStmt->bindParam(':result', $result, PDO::PARAM_STR);
+    $updateStmt->bindParam(':enrollment_id', $enrollmentId, PDO::PARAM_INT);
+    $updateStmt->execute();
+
+    // Refresh the current page
+    header('Location: ' . $_SERVER['REQUEST_URI']);
+    exit();
+}
+
+// Handle the form submission for accepting
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enrollment_id'], $_POST['accept'])) {
+    $enrollmentId = (int)$_POST['enrollment_id'];
+
+    // Update the status in the database
+    $updateQuery = "UPDATE Enrollments SET Status = 'Enrolled' WHERE EnrollmentID = :enrollment_id";
+    $updateStmt = $conn->prepare($updateQuery);
+    $updateStmt->bindParam(':enrollment_id', $enrollmentId, PDO::PARAM_INT);
+    $updateStmt->execute();
+
+    // Refresh the current page
+    header('Location: ' . $_SERVER['REQUEST_URI']);
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
@@ -46,19 +64,17 @@ if ($conn) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="css/sidebar.css"> <!-- Adjust path if necessary -->
-    <!-- Additional styles specific to the admin dashboard -->
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f9f9f9; /* Light gray background for admin */
+            background-color: #f9f9f9;
             display: flex;
             min-height: 100vh;
             margin: 0;
         }
         .sidebar {
             width: 250px;
-            background-color: #2c3e50; /* Darker sidebar color for admin */
+            background-color: #2c3e50;
             color: white;
             padding: 20px;
             box-sizing: border-box;
@@ -92,18 +108,18 @@ if ($conn) {
         }
         .stats {
             display: flex;
-            justify-content: flex-start; /* Align items to the start */
-            margin-top: 10px; /* Reduce the top margin to bring it closer to the heading */
+            justify-content: flex-start;
+            margin-top: 10px;
         }
         .stat-box {
-            background-color: #fff;
+            background-color: #3498db;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 20px;
             text-align: center;
             width: 200px;
-            margin-left: 0; /* Align with the heading */
-            cursor: pointer; /* Make the box clickable */
+            cursor: pointer;
+            color: white;
         }
         .stat-box h2 {
             font-size: 1.5em;
@@ -111,17 +127,15 @@ if ($conn) {
         }
         .stat-box p {
             font-size: 2em;
-            color: #2c3e50;
         }
-        .stat-box:nth-child(1) {
-            background-color: #3498db; /* Blue for Pending Requests */
-            color: white;
+        .enrollments-container {
+            display: none; /* Hide the container initially */
+            margin-top: 20px;
         }
         .enrollments-table {
-            display: none; /* Hide the table initially */
-            margin-top: 20px;
             width: 100%;
             border-collapse: collapse;
+            margin-top: 20px;
         }
         .enrollments-table th, .enrollments-table td {
             border: 1px solid #ddd;
@@ -135,43 +149,45 @@ if ($conn) {
         .enrollments-table tr:nth-child(even) {
             background-color: #f2f2f2;
         }
+        /* Add this CSS rule to remove underlines from links */
+        a {
+            text-decoration: none;
+        }
     </style>
     <script>
         function toggleEnrollmentsTable() {
-            var table = document.getElementById('enrollmentsTable');
-            if (table.style.display === 'none' || table.style.display === '') {
-                table.style.display = 'table';
+            var container = document.getElementById('enrollmentsContainer');
+            if (container.style.display === 'none' || container.style.display === '') {
+                container.style.display = 'block';
             } else {
-                table.style.display = 'none';
+                container.style.display = 'none';
             }
         }
     </script>
 </head>
 <body>
-    <div class="sidebar">
-        <!-- Sidebar content -->
-        <ul>
-            <li><a href="dashboard_admin.php">Dashboard</a></li>
-            <li><a href="add_students.php">Add Students</a></li>
-            <li><a href="all_students.php">All Students</a></li>
-            <li><a href="add_admins.php">Add Admins</a></li>
-            <li><a href="all_admins.php">All Admins</a></li>
-            <li><a href="all_users.php">All Users</a></li>
-            <li><a href="enrollments.php">Enrollments</a></li>
-            <li><a href="logout.php">Logout</a></li>
-        </ul>
+<div class="sidebar">
+    <ul>
+        <li><a href="dashboard_admin.php">Dashboard</a></li>
+        <li><a href="add_students.php">Add Students</a></li>
+        <li><a href="add_admins.php">Add Admins</a></li>
+        <li><a href="all_users.php">All Users</a></li>
+        <li><a href="enrollments.php">Enrollments</a></li>
+        <li><a href="logout.php">Logout</a></li>
+    </ul>
+</div>
+<div class="main-content">
+    <h1>Dashboard Statistics Overview</h1>
+    <div class="stats">
+        <div class="stat-box" onclick="toggleEnrollmentsTable()">
+            <h2>Total Requests</h2>
+            <p><?php echo htmlspecialchars($total_requests ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
+        </div>
     </div>
 
-    <div class="main-content">
-        <h1>Dashboard Statistics Overview</h1>
-        <div class="stats">
-            <div class="stat-box" onclick="toggleEnrollmentsTable()">
-                <h2>Total Requests</h2>
-                <p><?php echo htmlspecialchars($total_requests); ?></p>
-            </div>
-        </div>
-
-        <table id="enrollmentsTable" class="enrollments-table">
+    <div id="enrollmentsContainer" class="enrollments-container">
+        <h2>Enrollments</h2>
+        <table class="enrollments-table">
             <thead>
                 <tr>
                     <th>EnrollmentID</th>
@@ -179,25 +195,29 @@ if ($conn) {
                     <th>Subject ID</th>
                     <th>Semester</th>
                     <th>Status</th>
+                    <th>Results</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($enrollments as $enrollment): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($enrollment['EnrollmentID'], ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td><?php echo htmlspecialchars($enrollment['userid'], ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td><?php echo htmlspecialchars($enrollment['SubjectID'], ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td><?php echo htmlspecialchars($enrollment['Semester'], ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td><?php echo htmlspecialchars($enrollment['Status'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td><?php echo htmlspecialchars($enrollment['EnrollmentID'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td><?php echo htmlspecialchars($enrollment['userid'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td><?php echo htmlspecialchars($enrollment['SubjectID'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td><?php echo htmlspecialchars($enrollment['Semester'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td><?php echo htmlspecialchars($enrollment['Status'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                         <td>
-                            <form method="post" action="enrollments.php" style="display:inline;">
-                                <input type="hidden" name="enrollment_id" value="<?php echo htmlspecialchars($enrollment['EnrollmentID'], ENT_QUOTES, 'UTF-8'); ?>">
-                                <button type="submit" name="accept">Accept</button>
+                            <form method="post" action="dashboard_admin.php">
+                                <input type="text" name="result" value="<?php echo htmlspecialchars($enrollment['results'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                <input type="hidden" name="enrollment_id" value="<?php echo htmlspecialchars($enrollment['EnrollmentID'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                <button type="submit" name="submit">Submit</button>
                             </form>
-                            <form method="post" action="enrollments.php" style="display:inline;">
-                                <input type="hidden" name="enrollment_id" value="<?php echo htmlspecialchars($enrollment['EnrollmentID'], ENT_QUOTES, 'UTF-8'); ?>">
-                                <button type="submit" name="decline">Decline</button>
+                        </td>
+                        <td>
+                            <form method="post" action="dashboard_admin.php" style="display:inline;">
+                                <input type="hidden" name="enrollment_id" value="<?php echo htmlspecialchars($enrollment['EnrollmentID'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                <button type="submit" name="accept">Accept</button>
                             </form>
                         </td>
                     </tr>
@@ -205,5 +225,6 @@ if ($conn) {
             </tbody>
         </table>
     </div>
+</div>
 </body>
 </html>

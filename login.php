@@ -11,7 +11,6 @@ if ($_POST) {
     $query = 'SELECT id, firstname, lastname, MajorName1, MajorName2, StudentYear FROM users WHERE username = :username AND password = :password';
     $stmt = $conn->prepare($query);
     $stmt->bindParam(':username', $username);
-    // Use password_hash to compare passwords securely (you should hash the password before this step)
     $stmt->bindParam(':password', $password); // This should be hashed for security
     $stmt->execute();
 
@@ -33,7 +32,7 @@ if ($_POST) {
 
         // Get MajorID for MajorName1 if it's not null
         if (!empty($user['MajorName1'])) {
-            $queryMajor1 = 'SELECT MajorID,Department FROM Majors WHERE MajorName = :majorName1';
+            $queryMajor1 = 'SELECT MajorID, Department FROM Majors WHERE MajorName = :majorName1';
             $stmtMajor1 = $conn->prepare($queryMajor1);
             $stmtMajor1->bindParam(':majorName1', $user['MajorName1']);
             $stmtMajor1->execute();
@@ -58,9 +57,14 @@ if ($_POST) {
                 $_SESSION['Department'] = $major1['Department'];
             }
         }
-    
-        header('Location: dashboard.php');
-        exit;
+
+        // Redirect based on the username content
+        if (stripos($username, 'admin') !== false) {
+            header('Location: dashboard_admin.php');
+        } else {
+            header('Location: dashboard.php');
+        }
+        exit();
     } else {
         $error_message = 'Username or Password is incorrect.';
     }
@@ -81,7 +85,7 @@ if ($_POST) {
     <h2>Login</h2>
     <?php
     if (!empty($error_message)) {
-        echo '<p class="message">' . htmlspecialchars($error_message) . '</p>';
+        echo '<p class="message">' . htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8') . '</p>';
     }
     ?>
     <form action="login.php" method="POST">

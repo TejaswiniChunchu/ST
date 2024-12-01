@@ -113,20 +113,18 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="sidebar">
         <ul>
         <li><a href="dashboard_admin.php">Dashboard</a></li>
-            <li><a href="add_students.php">Add Students</a></li>
-            <li><a href="all_students.php">All Students</a></li>
-            <li><a href="add_admins.php">Add Admins</a></li>
-            <li><a href="all_admins.php">All Admins</a></li>
-            <li><a href="all_users.php">All Users</a></li>
-            <li><a href="enrollments.php">Enrollments</a></li>
-            <li><a href="logout.php">Logout</a></li>
+        <li><a href="add_students.php">Add Students</a></li>
+        <li><a href="add_admins.php">Add Admins</a></li>
+        <li><a href="all_users.php">All Users</a></li>
+        <li><a href="enrollments.php">Enrollments</a></li>
+        <li><a href="logout.php">Logout</a></li>
         </ul>
     </div>
     <div class="main-content">
         <h1>All Users</h1>
         <div class="search-bar">
             <form method="GET" action="all_users.php">
-                <input type="text" name="search" placeholder="Search by ID, email, or name" value="<?php echo htmlspecialchars($search); ?>">
+                <input type="text" name="search" placeholder="Search by ID, email, or name" value="<?php echo htmlspecialchars($search ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="submit" value="Search">
             </form>
         </div>
@@ -151,18 +149,18 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php if ($result) { ?>
                     <?php foreach ($result as $row) { ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($row['id']); ?></td>
-                            <td><?php echo htmlspecialchars($row['username']); ?></td>
-                            <td><?php echo htmlspecialchars($row['password']); ?></td>
-                            <td><?php echo htmlspecialchars($row['role']); ?></td>
-                            <td><?php echo htmlspecialchars($row['firstname']); ?></td>
-                            <td><?php echo htmlspecialchars($row['lastname']); ?></td>
-                            <td><?php echo htmlspecialchars($row['email']); ?></td>
-                            <td><?php echo htmlspecialchars($row['contactnumber']); ?></td>
-                            <td><?php echo htmlspecialchars($row['address']); ?></td>
-                            <td><?php echo htmlspecialchars($row['MajorName1']); ?></td>
-                            <td><?php echo htmlspecialchars($row['MajorName2']); ?></td>
-                            <td><?php echo htmlspecialchars($row['StudentYear']); ?></td>
+                            <td><?php echo htmlspecialchars($row['id'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($row['username'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($row['password'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($row['role'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($row['firstname'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($row['lastname'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($row['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($row['contactnumber'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($row['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($row['MajorName1'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($row['MajorName2'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($row['StudentYear'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                         </tr>
                     <?php } ?>
                 <?php } else { ?>
