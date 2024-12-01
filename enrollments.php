@@ -115,11 +115,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enrollment_id'], $_PO
 <body>
 <div class="sidebar">
     <ul>
-        <li><a href="dashboard_admin.php">Dashboard</a></li>
+    <li><a href="dashboard_admin.php">Dashboard</a></li>
         <li><a href="add_students.php">Add Students</a></li>
-        <li><a href="all_students.php">All Students</a></li>
         <li><a href="add_admins.php">Add Admins</a></li>
-        <li><a href="all_admins.php">All Admins</a></li>
         <li><a href="all_users.php">All Users</a></li>
         <li><a href="enrollments.php">Enrollments</a></li>
         <li><a href="logout.php">Logout</a></li>
@@ -142,21 +140,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enrollment_id'], $_PO
         <tbody>
             <?php foreach ($enrollments as $enrollment): ?>
                 <tr>
-                    <td><?php echo htmlspecialchars($enrollment['EnrollmentID'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars($enrollment['userid'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars($enrollment['SubjectID'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars($enrollment['Semester'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars($enrollment['Status'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($enrollment['EnrollmentID'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($enrollment['userid'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($enrollment['SubjectID'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($enrollment['Semester'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($enrollment['Status'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                     <td>
                         <form method="post" action="enrollments.php">
-                            <input type="text" name="result" value="<?php echo htmlspecialchars($enrollment['results'], ENT_QUOTES, 'UTF-8'); ?>">
-                            <input type="hidden" name="enrollment_id" value="<?php echo htmlspecialchars($enrollment['EnrollmentID'], ENT_QUOTES, 'UTF-8'); ?>">
+                            <input type="text" name="result" value="<?php echo htmlspecialchars($enrollment['results'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                            <input type="hidden" name="enrollment_id" value="<?php echo htmlspecialchars($enrollment['EnrollmentID'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                             <button type="submit" name="submit">Submit</button>
                         </form>
                     </td>
                     <td>
                         <form method="post" action="enrollments.php" style="display:inline;">
-                            <input type="hidden" name="enrollment_id" value="<?php echo htmlspecialchars($enrollment['EnrollmentID'], ENT_QUOTES, 'UTF-8'); ?>">
+                            <input type="hidden" name="enrollment_id" value="<?php echo htmlspecialchars($enrollment['EnrollmentID'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                             <button type="submit" name="accept">Accept</button>
                         </form>
                     </td>
