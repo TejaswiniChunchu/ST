@@ -4,6 +4,8 @@ session_start(); // Start the session if not already started
 // Include the database connection file
 include('database/connection.php');
 
+$successMessage = "";
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Get the form data
     $username = isset($_POST['username']) ? trim($_POST['username']) : '';
@@ -34,9 +36,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Execute the statement
         if ($stmt->execute()) {
-            // Redirect to the all_students.php to avoid resubmission
-            header("Location: all_students.php");
-            exit();
+            // Set the success message
+            $successMessage = "Student added successfully!";
+            // Clear the form fields
+            echo "<script>document.getElementById('add-student-form').reset();</script>";
         } else {
             // Handle errors
             echo "Error adding student. Please try again.";
@@ -145,7 +148,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="main-content">
         <div class="form-container">
             <h2>Add Students</h2>
-            <form action="add_students.php" method="post">
+            <?php if ($successMessage): ?>
+                <p style="color: green;"><?php echo $successMessage; ?></p>
+            <?php endif; ?>
+            <form id="add-student-form" action="add_students.php" method="post">
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" required>
 
