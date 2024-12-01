@@ -336,17 +336,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="detail-item">
                     <label for="creditHours">Result:</label>
-                    <span>
-                    <?php 
-                                if (trim($results) === 'Pass') {
-                                echo "Completed";
-                                 } else if (trim($results) === 'Fail'){
-                                  echo "Incomplete";
-                                }
-                              ?>
-                    </span>
+                    <span><?php echo $results; ?></span>
                 </div>
-               
                 <div class="detail-item">
                     <label for="creditHours">Description:</label>
                     <span><?php echo $description; ?></span>
