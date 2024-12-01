@@ -4,8 +4,6 @@ CREATE TABLE Majors (
     Department VARCHAR(255) NOT NULL
 );
 
-
-
 INSERT INTO Majors (MajorID, MajorName, Department) VALUES
 (1, 'Software Engineering', 'Bachelor of Information & Communications Technology'),
 (2, 'Data Management & Analytics', 'Bachelor of Information & Communications Technology'),
@@ -27,8 +25,6 @@ CREATE TABLE Subjects (
     CreditHours INT NOT NULL,
     Description TEXT 
 );
-
-
 
 INSERT INTO Subjects (SubjectID, SubjectName, Prerequisite, StudyYear, Sem, CourseType, EnrollmentStatus, CreditHours, Description) VALUES
 ('D201', 'Advanced Programming', NULL, 2, '1', 'Major', 'Available', 105, 'Advanced concepts in programming.'),
@@ -113,9 +109,7 @@ CREATE TABLE SubjectMajors (
     PRIMARY KEY (SubjectID, MajorID),           -- Composite primary key
     FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID) ON DELETE CASCADE,
     FOREIGN KEY (MajorID) REFERENCES Majors(MajorID) ON DELETE CASCADE);
-
-
-
+    
 -- Linking Subjects to Majors
 INSERT INTO SubjectMajors (SubjectID, MajorID) VALUES
 ('D201', 1),  
@@ -152,7 +146,6 @@ CREATE TABLE Electives (
     StudentYear INT NOT NULL
 );
 
-
 INSERT INTO Electives (SubjectID, Department, StudentYear) VALUES 
 ('D201', 'Bachelor of Information & Communications Technology', 2),
 ('T206', 'Bachelor of Information & Communications Technology', 2),
@@ -181,7 +174,6 @@ INSERT INTO Electives (SubjectID, Department, StudentYear) VALUES
 ('T311', 'Bachelor of Information & Communications Technology', 3),
 ('T312', 'Bachelor of Information & Communications Technology', 3);
 
-
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
@@ -197,10 +189,7 @@ CREATE TABLE users (
     StudentYear INT
 );
 
-
-
 INSERT INTO users (username, password, role, firstname, lastname, email, contactnumber, address, MajorName1, MajorName2, StudentYear) VALUES ('teja', 'teja', 'user', 'Teja', 'Chunchu', 'teja.chunchu577@gmail.com', '225066554', '3 Papawai Place, Milson, Palmerston North', NULL, NULL, 2), ('admin', 'admin', 'admin', 'Admin', 'User', 'admin@example.com', '1234567890', '1 Admin Street, Admin City', NULL , NULL, NULL);
-
 
 INSERT INTO Users (username, password, role, firstname, lastname, email, contactnumber, address, MajorName1, MajorName2, StudentYear) VALUES ('john', 'password1', 'user', 'John', 'Doe', 'john.doe@example.com', '9876543210', '22 Baker Street, London', NULL, NULL, 2), ('jane', 'password2', 'user', 'Jane', 'Doe', 'jane.doe@example.com', '1122334455', '10 Maple Avenue, Springfield', NULL, NULL, 2), ('mike', 'password3', 'user', 'Mike', 'Smith', 'mike.smith@example.com', '5544332211', '15 Pine Road, New York', NULL, NULL, 2), ('linda', 'password4', 'user', 'Linda', 'Brown', 'linda.brown@example.com', '9988776655', '7 Oak Street, Chicago', NULL, NULL, 3);
 
@@ -215,58 +204,9 @@ CREATE TABLE Enrollments (
     FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID) ON DELETE CASCADE
 );
 
- -- Create the admins table
-CREATE TABLE admins (
-  id VARCHAR(255) PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  email VARCHAR(255) NOT NULL
-);
-
--- Insert data into the admins table
-INSERT INTO admins (id, name, email) VALUES
-('a1', 'Navdeep Singh', 'nsingh@gmail.com');
-
--- Create the students table
-CREATE TABLE students (
-    id INT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    major VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Insert data into the students table
-INSERT INTO students (id, name, email, major) VALUES
-(1, 'Anderson', 'janderson@gmail.com', 'Data Analytics and Intelligence'),
-(2, 'Michael Brown', 'mbrown@gmail.com', 'Data Analytics and Intelligence');
-
--- Create the profiles table
-CREATE TABLE profiles (
-    id CHAR(2) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    contactnumber VARCHAR(10) NOT NULL,
-    address VARCHAR(255) NOT NULL
-);
-
--- Insert data into the profiles table
-INSERT INTO profiles (id, name, email, contactnumber, address) VALUES
-('a0', 'Admin User', 'admin@example.com', '1234567890', 'Admin Street, Admin City'),
-('1', 'John Anderson', 'janderson@gmail.com', '1234567890', 'Student Street, Student City'),
-('2', 'Michael Brown', 'mbrown@gmail.com', '345678912', 'Student Street, Student City'),
-('a1', 'Navdeep Singh', 'nsingh@gmail.com', '1234567890', 'Admin Street, Admin City');
-
 INSERT INTO Enrollments (userid, SubjectID, Semester, Status, results)
 SELECT u.id, s.SubjectID, 1, 'Enrolled', NULL
 FROM Users u
 CROSS JOIN Subjects s
 WHERE s.StudyYear = 1
 AND u.role != 'admin';
-
-
-
-
-
-
-
-
